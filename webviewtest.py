@@ -51,7 +51,16 @@ if __name__ == '__main__':
         writer.writerows(data_prod)
 
     # génération du tableau HTML à partir des données lues
-    content += "<h1>Table</h1>"
+    content += """
+    <h2>Ajouter un produit</h2>
+    <form id="addForm">
+      <label>Nom: <input id="name" name="name" required></label>
+      <label>Prix: <input id="price" name="price" type="number" step="0.01" required></label>
+      <label>Quantité: <input id="quantity" name="quantity" type="number" required></label>
+      <button type="submit">Ajouter</button>
+    </form>
+    <hr />
+    """
 
     if header and len(header) >= 5:
         content += (
