@@ -131,6 +131,7 @@ if __name__ == '__main__':
     </form>
     <hr />
     """
+    
 
     data_prod = lecture_produce()
     header = data_prod[0]
@@ -156,6 +157,7 @@ if __name__ == '__main__':
                 f'<td>{row[2]}</td>'
                 f'<td>{row[3]}</td>'
                 f'<td>{row[4]}</td>'
+                f'<td><form id="updForm"><button type="submit">Ajouter</button></form><hr/></td>'
                 '</tr>'
             )
 
@@ -165,7 +167,7 @@ if __name__ == '__main__':
     content += """
     <script>
     window.addEventListener('pywebviewready', function() {
-        document.getElementById('addForm').addEventListener('submit', function(e) {
+        document.getElementById('updForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const nom = document.getElementById('name').value;
             const prix = document.getElementById('price').value;
@@ -178,6 +180,29 @@ if __name__ == '__main__':
                 const tbody = document.getElementById('tbody');
                 const tr = document.createElement('tr');
                 tr.innerHTML = '<th scope="row">' + nom + '</th><td>' + prix + '</td><td>' + quantit + '</td><td>' + quantit + '</td>';
+                tbody.appendChild(tr);
+                document.getElementById('updForm').reset();
+            }).catch(err => {
+                console.error('✗ Erreur :', err);
+                alert('Erreur : ' + err.message);
+            });
+        });
+
+        int x =""" 
+    content +="""0;
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nom = document.getElementById('name').value;
+            const prix = document.getElementById('price').value;
+            const quantit = document.getElementById('quantity').value;
+            
+            console.log('Envoi vers Python :', {nom, prix, quantit});
+            
+            window.pywebview.api.add_product_api(nom, prix, quantit).then(() => {
+                console.log('✓ Succès');
+                const tbody = document.getElementById('tbody');
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<th scope="row">' + nom + '</th><td>' + prix + '</td><td>' + quantit + '</td><td>' + quantit + '</td>' + ;
                 tbody.appendChild(tr);
                 document.getElementById('addForm').reset();
             }).catch(err => {
