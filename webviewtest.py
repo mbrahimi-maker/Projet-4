@@ -3,32 +3,19 @@ import csv
 import os
 
 
-class Api:
-    def __init__(self, csv_path):
-        self.csv_path = csv_path
-
-    def add_product_api(self, nom, prix, quantit):
-        """Récupère les champs du formulaire et appelle add_product"""
-        try:
-            prix = float(prix)
-        except:
-            prix = 0.0
-        try:
-            quantit = int(quantit)
-        except:
-            quantit = 0
-        
-        add_product(nom, prix, quantit, self.csv_path)
-        return True
-
-
-def hello_world():
-    webview.evaluate_js('document.getElementById("message").innerHTML = "Hello, Pywebview!"')
-
-
-def set_prod(nom, prix=0, quantit=0, csv_path_arg=None):
-    if csv_path_arg is None:
-        csv_path_arg = csv_path
+def set_prod(nom, prix=0, quantit=0, csv_file=None):
+    """Modifie un produit existant
+    
+    Args:
+        nom: Nom du produit à modifier
+        prix: Nouveau prix (optionnel)
+        quantit: Nouvelle quantité (optionnel)
+        csv_file: Nom du fichier CSV (ex: 'produit.csv')
+    """
+    if csv_file is None:
+        csv_file = 'produit.csv'
+    
+    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
     data_prod = []
     header = []
     with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
@@ -63,9 +50,16 @@ def set_prod(nom, prix=0, quantit=0, csv_path_arg=None):
         writer.writerows(data_prod)
 
 
-def lecture_produce(csv_path_arg=None):
-    if csv_path_arg is None:
-        csv_path_arg = csv_path
+def lecture_produce(csv_file=None):
+    """Lit un fichier CSV
+    
+    Args:
+        csv_file: Nom du fichier CSV (ex: 'produit.csv')
+    """
+    if csv_file is None:
+        csv_file = 'produit.csv'
+    
+    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
     data_prod = []
     with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
         reader = csv.reader(csv_prod)
@@ -74,16 +68,26 @@ def lecture_produce(csv_path_arg=None):
     return data_prod
 
 
-def add_product(nom, prix, quantit, csv_path_arg=None):
-    if csv_path_arg is None:
-        csv_path_arg = csv_path
+def add_product(nom, prix, quantit, csv_file=None):
+    """Ajoute un nouveau produit
+    
+    Args:
+        nom: Nom du produit
+        prix: Prix du produit
+        quantit: Quantité du produit
+        csv_file: Nom du fichier CSV (ex: 'produit.csv')
+    """
+    if csv_file is None:
+        csv_file = 'produit.csv'
+    
+    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
     # lecture
     data_prod = []
     header = []
     with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
         reader = csv.reader(csv_prod)
         for i, row in enumerate(reader):
-            if i == 0:  # Correction : était i < 0
+            if i == 0:
                 header = row
                 data_prod.append(row)
             else:
@@ -100,13 +104,43 @@ def add_product(nom, prix, quantit, csv_path_arg=None):
                 data_prod.append([id0, name, f"{price}", quantity, total])
         
         # Déterminer le prochain ID
-        next_id = len(data_prod)
+        next_id = 1
+        if len(data_prod) > 1:
+            try:
+                last_id = int(data_prod[-1][0])
+                next_id = last_id + 1
+            except:
+                next_id = len(data_prod)
+        
         data_prod.append([str(next_id), nom, str(prix), str(quantit), str(quantit)])
 
     # Réécrire
     with open(csv_path_arg, 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerows(data_prod)
+
+
+class Api:
+    def __init__(self, csv_file='produit.csv'):
+        self.csv_file = csv_file
+
+    def add_product_api(self, nom, prix, quantit):
+        """Récupère les champs du formulaire et appelle add_product"""
+        try:
+            prix = float(prix)
+        except:
+            prix = 0.0
+        try:
+            quantit = int(quantit)
+        except:
+            quantit = 0
+        
+        add_product(nom, prix, quantit, self.csv_file)
+        return True
+
+
+def hello_world():
+    webview.evaluate_js('document.getElementById("message").innerHTML = "Hello, Pywebview!"')
 
 
 if __name__ == '__main__':
@@ -131,7 +165,6 @@ if __name__ == '__main__':
     </form>
     <hr />
     """
-    
 
     data_prod = lecture_produce()
     header = data_prod[0]
@@ -157,7 +190,6 @@ if __name__ == '__main__':
                 f'<td>{row[2]}</td>'
                 f'<td>{row[3]}</td>'
                 f'<td>{row[4]}</td>'
-                f'<td><form id="updForm"><button type="submit">Ajouter</button></form><hr/></td>'
                 '</tr>'
             )
 
@@ -167,29 +199,6 @@ if __name__ == '__main__':
     content += """
     <script>
     window.addEventListener('pywebviewready', function() {
-        document.getElementById('updForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nom = document.getElementById('name').value;
-            const prix = document.getElementById('price').value;
-            const quantit = document.getElementById('quantity').value;
-            
-            console.log('Envoi vers Python :', {nom, prix, quantit});
-            
-            window.pywebview.api.add_product_api(nom, prix, quantit).then(() => {
-                console.log('✓ Succès');
-                const tbody = document.getElementById('tbody');
-                const tr = document.createElement('tr');
-                tr.innerHTML = '<th scope="row">' + nom + '</th><td>' + prix + '</td><td>' + quantit + '</td><td>' + quantit + '</td>';
-                tbody.appendChild(tr);
-                document.getElementById('updForm').reset();
-            }).catch(err => {
-                console.error('✗ Erreur :', err);
-                alert('Erreur : ' + err.message);
-            });
-        });
-
-        int x =""" 
-    content +="""0;
         document.getElementById('addForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const nom = document.getElementById('name').value;
@@ -202,7 +211,7 @@ if __name__ == '__main__':
                 console.log('✓ Succès');
                 const tbody = document.getElementById('tbody');
                 const tr = document.createElement('tr');
-                tr.innerHTML = '<th scope="row">' + nom + '</th><td>' + prix + '</td><td>' + quantit + '</td><td>' + quantit + '</td>' + ;
+                tr.innerHTML = '<th scope="row">' + nom + '</th><td>' + prix + '</td><td>' + quantit + '</td><td>' + quantit + '</td>';
                 tbody.appendChild(tr);
                 document.getElementById('addForm').reset();
             }).catch(err => {
@@ -217,4 +226,3 @@ if __name__ == '__main__':
     api = Api(csv_path)
     window = webview.create_window('Hello Pywebview', html=content, js_api=api)
     webview.start(hello_world, window)
-
