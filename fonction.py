@@ -130,14 +130,6 @@ class fct:
 
     def add_api(self, nom, prix, quantit, total=None):
         """Récupère les champs du formulaire et appelle add_product"""
-        try:
-            prix = float(prix)
-        except:
-            prix = 0.0
-        try:
-            quantit = int(quantit)
-        except:
-            quantit = 0
         
         add(nom, prix, quantit, total, self.csv_file)
         return True

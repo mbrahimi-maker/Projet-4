@@ -68,7 +68,7 @@ class Api:
 
             hashed_password = hash_password(password)
 
-            self.api_fonction.add_api(identifiant, hashed_password, email)
+            self.api_fonction.add_api(identifiant, hashed_password, email, user_type)
             return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
         except Exception as e:
             print("Erreur register:", e)
