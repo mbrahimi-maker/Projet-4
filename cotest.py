@@ -3,12 +3,11 @@ import csv
 import os
 import hashlib
 import re
+import subprocess
+import sys
 from fonction import fct as ApiFonction
-from checkmypass import check as check
-from list_product import Api as ProdApi 
+from checkmypass import main
 
-conenxion = None
-produit = None
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -49,7 +48,7 @@ class Api:
 
     def register(self, identifiant, password, email, user_type):
         try:
-            if not identifiant or not password or not email:
+            if not identifiant or not password or not email or not user_type:
                 return {'success': False, 'message': 'Tous les champs sont requis'}
 
             if len(identifiant) < 3:
@@ -71,10 +70,9 @@ class Api:
                 if len(user) >= 4 and user[3].lower() == email.lower():
                     return {'success': False, 'message': 'Cet email est déjà utilisé'}
             hashed_password = hash_password(password)
-            chec = check()
-            print (chec.main("@23rty@1234"))
-            if(chec.main("@23rty@1234")):
-                self.api_fonction.add_api(identifiant, hashed_password, email, 'acheteur')
+
+            if(main(password)):
+                self.api_fonction.add_api(identifiant, hashed_password, email, user_type)
                 return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
             else:
                 return {'success': False, 'message': "Erreur mot de passe compromis, choisissez-en un autre."}
@@ -87,28 +85,40 @@ class Api:
             if not identifiant or not password:
                 return {'success': False, 'message': 'Tous les champs sont requis'}
 
-            users = lecture_users("user.csv")
-            hashed_password = hash_password(password)
-
-            for user in users[1:]:
-                if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == hashed_password:
-                    if user[4] == 'vendeur':
-                        ProdAp = ProdApi('product.csv')
-                        html = ProdAp.page()
-                        window = webview.create_window('Connexion / Inscription', html=html, js_api=api)
-                        api.window = window
-                        connexion.destroy()
-                    elif user[4] == 'acheteur':
-                        connexion.destroy()
-                    else:
-                        pass   
-                    
-                    return {'success': True, 'message': 'Connexion réussie !'}
-                
-            return {'success': False, 'message': 'Identifiant ou mot de passe incorrect'}
+            if verify_user(identifiant, password, self.csv_file):
+                # Connexion réussie - lancer liste produit.py
+                self.launch_product_list()
+                return {'success': True, 'message': 'Connexion réussie ! Redirection...'}
+            else:
+                return {'success': False, 'message': 'Identifiant ou mot de passe incorrect'}
         except Exception as e:
             print("Erreur login:", e)
             return {'success': False, 'message': 'Erreur interne lors de la connexion'}
+
+    def launch_product_list(self):
+        """Lance liste produit.py et ferme la fenêtre de connexion"""
+        try:
+            # Chemin vers liste produit.py
+            product_list_path = os.path.join(os.path.dirname(__file__), 'liste produit.py')
+            
+            # Lancer le fichier dans un nouveau processus
+            if sys.platform == 'win32':
+                subprocess.Popen([sys.executable, product_list_path], 
+                               creationflags=subprocess.CREATE_NEW_CONSOLE)
+            else:
+                subprocess.Popen([sys.executable, product_list_path])
+            
+            # Fermer la fenêtre de connexion après un court délai
+            if self.window:
+                import threading
+                def close_window():
+                    import time
+                    time.sleep(1)  # Attendre 1 seconde pour que l'utilisateur voie le message
+                    self.window.destroy()
+                
+                threading.Thread(target=close_window, daemon=True).start()
+        except Exception as e:
+            print(f"Erreur lors du lancement de liste produit.py: {e}")
 
     def show_login(self):
         try:
@@ -159,8 +169,9 @@ def create_auth_page():
             .radio-group { display: flex; gap: 20px; margin-top: 10px; }
             .radio-group label { margin-bottom: 0; display: flex; align-items: center; }
             .radio-group input[type="radio"] { margin-right: 5px; width: auto; }
-            button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+            button { width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; transition: background 0.3s; }
             button:hover { background: #764ba2; }
+            button:disabled { background: #ccc; cursor: not-allowed; }
             .toggle-link { text-align: center; margin-top: 20px; }
             .toggle-link a { color: #667eea; cursor: pointer; text-decoration: none; font-weight: bold; }
             .toggle-link a:hover { text-decoration: underline; }
@@ -170,6 +181,8 @@ def create_auth_page():
             h2 { margin-bottom: 30px; color: #333; }
             #backBtn { width: auto; background: #6c757d; margin-bottom: 20px; }
             #backBtn:hover { background: #5a6268; }
+            .loading-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 8px; }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         </style>
     </head>
     <body>
@@ -188,7 +201,7 @@ def create_auth_page():
                         <label for="loginPassword">Mot de passe:</label>
                         <input type="password" id="loginPassword" required>
                     </div>
-                    <button type="submit">Se connecter</button>
+                    <button type="submit" id="loginBtn">Se connecter</button>
                 </form>
                 <div class="toggle-link">
                     Pas de compte ? <a onclick="window.pywebview.api.show_register()">S'inscrire</a>
@@ -212,6 +225,19 @@ def create_auth_page():
                         <label for="registerPassword">Mot de passe:</label>
                         <input type="password" id="registerPassword" required>
                     </div>
+                    <div class="form-group">
+                        <label>Type de compte:</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="userType" value="vendeur" required>
+                                Vendeur
+                            </label>
+                            <label>
+                                <input type="radio" name="userType" value="acheteur" required>
+                                Acheteur
+                            </label>
+                        </div>
+                    </div>
                     <button type="submit">S'inscrire</button>
                 </form>
             </div>
@@ -233,15 +259,27 @@ def create_auth_page():
                 e.preventDefault();
                 const identifiant = document.getElementById('loginIdentifiant').value;
                 const password = document.getElementById('loginPassword').value;
+                const loginBtn = document.getElementById('loginBtn');
+
+                // Désactiver le bouton et afficher un spinner
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = 'Connexion en cours<span class="loading-spinner"></span>';
 
                 window.pywebview.api.login(identifiant, password).then(result => {
                     showMessage(result.message, result.success ? 'success' : 'error');
                     if (result.success) {
                         document.getElementById('loginFormElement').reset();
+                        // La fenêtre se fermera automatiquement après 1 seconde
+                    } else {
+                        // Réactiver le bouton en cas d'échec
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = 'Se connecter';
                     }
                 }).catch(err => {
                     console.error('Erreur login JS:', err);
                     showMessage('Erreur de connexion', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Se connecter';
                 });
             });
 
@@ -251,7 +289,7 @@ def create_auth_page():
                 const identifiant = document.getElementById('registerIdentifiant').value;
                 const password = document.getElementById('registerPassword').value;
                 const email = document.getElementById('registerEmail').value;
-                const userTypeRadio = "acheteur";
+                const userTypeRadio = document.querySelector('input[name="userType"]:checked');
 
                 if (!userTypeRadio) {
                     showMessage('Veuillez sélectionner un type de compte', 'error');
@@ -284,6 +322,6 @@ def create_auth_page():
 if __name__ == '__main__':
     html = create_auth_page()
     api = Api('user.csv')
-    connexion = webview.create_window('Connexion / Inscription', html=html, js_api=api)
-    api.window = connexion
-    webview.start(api)
+    window = webview.create_window('Connexion / Inscription', html=html, js_api=api)
+    api.window = window
+    webview.start(debug=True)
