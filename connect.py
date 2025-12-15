@@ -4,6 +4,7 @@ import os
 import hashlib
 import re
 from fonction import fct as ApiFonction
+from checkmypass import main
 
 
 def hash_password(password):
@@ -65,11 +66,13 @@ class Api:
             for user in users[1:]:
                 if len(user) >= 4 and user[3].lower() == email.lower():
                     return {'success': False, 'message': 'Cet email est déjà utilisé'}
-
             hashed_password = hash_password(password)
 
-            self.api_fonction.add_api(identifiant, hashed_password, email, user_type)
-            return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
+            if(main(password)):
+                self.api_fonction.add_api(identifiant, hashed_password, email, user_type)
+                return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
+            else:
+                return {'success': False, 'message': "Erreur mot de passe compromis, choisissez-en un autre."}
         except Exception as e:
             print("Erreur register:", e)
             return {'success': False, 'message': "Erreur lors de l'inscription"}
@@ -80,6 +83,7 @@ class Api:
                 return {'success': False, 'message': 'Tous les champs sont requis'}
 
             if verify_user(identifiant, password, self.csv_file):
+
                 return {'success': True, 'message': 'Connexion réussie !'}
             else:
                 return {'success': False, 'message': 'Identifiant ou mot de passe incorrect'}
