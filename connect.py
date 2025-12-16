@@ -6,6 +6,7 @@ import re
 from fonction import fct as ApiFonction
 from checkmypass import check as check
 from list_product import Api as ProdApi 
+from commande import ApiCommande as CommandeApi
 
 conenxion = None
 produit = None
@@ -99,6 +100,10 @@ class Api:
                         api.window = window
                         connexion.destroy()
                     elif user[4] == 'acheteur':
+                        ProdAp = CommandeApi()
+                        html = ProdAp.page()
+                        window = webview.create_window('Produit', html=html, js_api=api)
+                        api.window = window
                         connexion.destroy()
                     else:
                         pass   
