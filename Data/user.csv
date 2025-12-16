@@ -1,2 +1,3 @@
 id,identifiant,password,email,type
-1,testlien,93338cff8a512cba7817df0a7380188d199b43214d25bd54014f8446f774e691,lien@mail.com,vendeur
+1,testlien,0.0,lien@mail.com,vendeur
+2,api,93338cff8a512cba7817df0a7380188d199b43214d25bd54014f8446f774e691,api@mail.com,acheteur

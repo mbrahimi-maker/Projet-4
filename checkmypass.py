@@ -47,22 +47,21 @@ class check:
         return 0
 
 
-    def main(self, args):
+    def main(self, passwords):
         """
         Checks passwords for compromise and prints results.
 
         :param args: List of passwords to check.
         :return: Completion status.
         """
-        for password in args:
-            count = self.pwned_api_check(password)
-            print(password)
-            if count:   
-                print("f")
-                return False
-            else:
-                print("t")
-                return True
+        print(passwords)
+        count = self.pwned_api_check(passwords)
+        if count:   
+            print("f")
+            return False
+        else:
+            print("t")
+            return True
 
 
 
