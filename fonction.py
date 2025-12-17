@@ -147,7 +147,6 @@ def add_user(nom, passw, mail , typ, csv_file=None):
                 if len(row) < 5:
                     continue
                 id0 = row[0]
-                print(id0)
                 name = row[1]
                 password = row[2]
                 email = row[3]
