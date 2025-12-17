@@ -5,7 +5,7 @@ import hashlib
 import re
 from fonction import fct as ApiFonction
 from checkmypass import check as check
-from list_product import Api as ProdApi 
+from liste_product import Api as ProdApi 
 from commande import ApiCommande as CommandeApi
 
 conenxion = None
@@ -99,9 +99,9 @@ class Api:
                         api.window = window
                         connexion.destroy()
                     elif user[4] == 'acheteur':
-                        ProdAp = CommandeApi()
+                        ProdAp = CommandeApi(user[0])
                         html = ProdAp.page()
-                        window = webview.create_window('Produit', html=html, js_api=api)
+                        window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
                         connexion.destroy()
                     else:
