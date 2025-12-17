@@ -569,7 +569,6 @@ class ApiCommande:
         </script>
         </body>
         </html>"""
-        
         return content
 
 
