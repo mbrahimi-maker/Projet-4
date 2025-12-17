@@ -73,9 +73,9 @@ class Api:
                     return {'success': False, 'message': 'Cet email est déjà utilisé'}
             hashed_password = hash_password(password)
             chec = check()
-            print (chec.main("@23rty@1234"))
-            if(chec.main("@23rty@1234")):
-                self.api_fonction.add_api(identifiant, hashed_password, email, 'acheteur')
+            print (chec.main(password))
+            if(chec.main(password)):
+                self.api_fonction.add_api(identifiant, hashed_password, email, 'acheteur', 2)
                 return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
             else:
                 return {'success': False, 'message': "Erreur mot de passe compromis, choisissez-en un autre."}
