@@ -137,7 +137,6 @@ def add_user(nom, passw, mail , typ, csv_file=None):
     csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
     data_prod = []
     header = []
-    
     with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
         reader = csv.reader(csv_prod)
         for i, row in enumerate(reader):
@@ -148,12 +147,12 @@ def add_user(nom, passw, mail , typ, csv_file=None):
                 if len(row) < 5:
                     continue
                 id0 = row[0]
+                print(id0)
                 name = row[1]
-                password = row[3]
-                email = row[4]
-                typ = row[5]
-                data_prod.append([id0, name, password, email, typ])
-        
+                password = row[2]
+                email = row[3]
+                typ = row[4]
+                data_prod.append([id0, name, str(password), email, typ])
         # Déterminer le prochain ID - DÉPLACER CETTE PARTIE
         next_id = 1
         if len(data_prod) > 1:
@@ -177,8 +176,6 @@ class fct:
     def add_api(self, nom, prix, quantit, total=None, type=None):
         """Récupère les champs du formulaire et appelle add_product"""
         if type is None:
-            pass
-        elif type == 1:
             add(nom, prix, quantit, total, self.csv_file)
         elif type == 2:
             add_user(nom, prix, quantit, total, self.csv_file)

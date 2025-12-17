@@ -54,13 +54,10 @@ class check:
         :param args: List of passwords to check.
         :return: Completion status.
         """
-        print(passwords)
         count = self.pwned_api_check(passwords)
         if count:   
-            print("f")
             return False
         else:
-            print("t")
             return True
 
 
