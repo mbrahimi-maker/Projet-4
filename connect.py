@@ -98,11 +98,13 @@ class Api:
                         window = webview.create_window('Connexion / Inscription', html=html, js_api=api)
                         api.window = window
                         connexion.destroy()
+                        
                     elif user[4] == 'acheteur':
                         ProdAp = CommandeApi(user[0])
                         html = ProdAp.page()
                         window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
+                        webview.start(window)
                         connexion.destroy()
                     else:
                         pass   

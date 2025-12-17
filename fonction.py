@@ -49,25 +49,6 @@ def set_prod(nom, prix=0, quantit=0, csv_file=None):
         writer = csv.writer(file)
         writer.writerows(data_prod)
 
-
-def lecture_produce(csv_file=None):
-    """Lit un fichier CSV
-    
-    Args:
-        csv_file: Nom du fichier CSV (ex: 'produit.csv')
-    """
-    if csv_file is None:
-        csv_file = 'produit.csv'
-    
-    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
-    data_prod = []
-    with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
-        reader = csv.reader(csv_prod)
-        for row in reader:
-            data_prod.append(row)
-    return data_prod
-
-
 def add(nom, prix, quantit, total=None ,csv_file=None):
     """Ajoute un nouveau produit
     
@@ -182,7 +163,7 @@ class fct:
 
     def get_product_stats(self, nom):
         """Retourne les stats d'un produit pour le diagramme"""
-        data_prod = lecture_produce(self.csv_file)
+        data_prod = self.lire_produce(self.csv_file)
         for row in data_prod[1:]:
             if len(row) >= 5 and row[1] == nom:
                 try:
@@ -199,4 +180,15 @@ class fct:
                 except (ValueError, IndexError):
                     return None
         return None
+    
+    def lire_produce(self, csv_file=None):
+        if csv_file is None:
+            csv_file = 'produit.csv'
+        csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
+        data_prod = []
+        with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
+            reader = csv.DictReader(csv_prod)
+            for row in reader:
+                data_prod.append(row)
+        return data_prod
 
