@@ -5,7 +5,6 @@ from liste_product import Api as ProdApi
 from commande import ApiCommande as CommandeApi
 from datetime import datetime
 
-conenxion = None
 produit = None
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "Data")
@@ -110,6 +109,16 @@ def lecture_users(csv_file='user.csv'):
                 users.append(row)
     return users
 
+def lecture_login(csv_file='user.csv'):
+    csv_path = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
+    users = []
+    if os.path.exists(csv_path):
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                users.append(row)
+    return users
+
 
 def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -161,9 +170,11 @@ class Api:
                 if len(user) >= 4 and user[3].lower() == email.lower():
                     return {'success': False, 'message': 'Cet email est déjà utilisé'}
             hashed_password = hash_password(password)
+            salt = generate_salt()
+            hashed_password = saltage_password(hashed_password, salt)
             chec = check()
             if(chec.main(password)):
-                self.api_fonction.add_api(identifiant, hashed_password, email, 'acheteur', 2)
+                self.api_fonction.add_api(identifiant, hashed_password, email, e='acheteur', f=salt)
                 return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
             else:
                 return {'success': False, 'message': "Erreur mot de passe compromis, choisissez-en un autre."}
@@ -178,10 +189,11 @@ class Api:
 
             users = lecture_users("user.csv")
             hashed_password = hash_password(password)
-
+            
             for user in users[1:]:
-                if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == hashed_password:
-                    if user[4] == 'vendeur':
+                print("Vérification de l'utilisateur:", user[2], "avec", saltage_password(hashed_password, user[3]))
+                if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == saltage_password(hashed_password, user[3]):
+                    if user[5] == 'vendeur':
                         ProdAp = ProdApi(csv_file='product.csv')
                         html = ProdAp.page()
                         window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
@@ -189,7 +201,7 @@ class Api:
                         webview.load_html(window)
                         connexion.destroy()
                         
-                    elif user[4] == 'acheteur':
+                    elif user[5] == 'acheteur':
                         self.setUser(user[0])
                         ProdAp = CommandeApi()
                         html = ProdAp.page()

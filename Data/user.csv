@@ -1,4 +1,2 @@
 id,identifiant,password,salt,email,type
-1,api,93338cff8a512cba7817df0a7380188d199b43214d25bd54014f8446f774e691, ,api@mail.Com,acheteur
-2,api2,9c797ff0858774d3b16512e3affbc5309059c67f8d4e7249b4138a68c2068483, ,api2@mail.com,acheteur
-3,vendeur,9c797ff0858774d3b16512e3affbc5309059c67f8d4e7249b4138a68c2068483, ,vendeur@mail.com,vendeur
+1,api,d975cc4c7e3efdec7b94ac1c4827d391d274e7cd0718d33eb665df930565a776,7de919bd2c4673a041745b40b1223e39,api@mail.com,acheteur

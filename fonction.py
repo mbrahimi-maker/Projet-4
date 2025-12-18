@@ -103,7 +103,7 @@ def add(nom, prix, quantit, total=None ,csv_file=None):
         writer = csv.writer(file)
         writer.writerows(data_prod)
 
-def add_user(nom, passw, mail , typ, csv_file=None):
+def add_user(nom, passw, mail , typ, salt, csv_file=None):
     """Ajoute un nouveau produit
     
     Args:
@@ -127,12 +127,8 @@ def add_user(nom, passw, mail , typ, csv_file=None):
             else:
                 if len(row) < 5:
                     continue
-                id0 = row[0]
-                name = row[1]
-                password = row[2]
-                email = row[3]
-                typ = row[4]
-                data_prod.append([id0, name, str(password), email, typ])
+                data_prod.append(row)
+
         # Déterminer le prochain ID - DÉPLACER CETTE PARTIE
         next_id = 1
         if len(data_prod) > 1:
@@ -142,7 +138,7 @@ def add_user(nom, passw, mail , typ, csv_file=None):
             except:
                 next_id = len(data_prod)
         
-        data_prod.append([str(next_id), nom, passw, mail, typ])
+        data_prod.append([str(next_id), nom, passw, salt, mail, typ])
 
     # Réécrire
     with open(csv_path_arg, 'w', newline='', encoding='utf-8') as file:
@@ -153,12 +149,13 @@ class fct:
     def __init__(self, csv_file='produit.csv'):
         self.csv_file = csv_file
 
-    def add_api(self, nom, prix, quantit, total=None, type=None):
+    def add_api(self, a, b, c, d=None, e=None, f=None):
         """Récupère les champs du formulaire et appelle add_product"""
-        if type is None:
-            add(nom, prix, quantit, total, self.csv_file)
-        elif type == 2:
-            add_user(nom, prix, quantit, total, self.csv_file)
+
+        if e is None:
+            add(a, b, c, d, self.csv_file)
+        elif f != None:
+            add_user(a, b, c, e, f, self.csv_file)
         return True
 
     def get_product_stats(self, nom):
