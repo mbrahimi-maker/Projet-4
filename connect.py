@@ -7,12 +7,94 @@ from fonction import fct as ApiFonction
 from checkmypass import check as check
 from liste_product import Api as ProdApi 
 from commande import ApiCommande as CommandeApi
+from datetime import datetime
 
 conenxion = None
 produit = None
 
+DATA_DIR = os.path.join(os.path.dirname(__file__), "Data")
+PRODUIT_CSV = os.path.join(DATA_DIR, "produit.csv")
+COMMANDE_CSV = os.path.join(DATA_DIR, "commande.csv")
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+def lire_produits():
+    produits = []
+    with open(PRODUIT_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        header = next(reader, None)
+        for row in reader:
+            if len(row) < 5:
+                continue
+            pid = row[0]
+            nom = row[1]
+            try:
+                prix = float(row[2])
+            except Exception:
+                prix = 0.0
+            try:
+                dispo = int(float(row[3]))
+            except Exception:
+                dispo = 0
+            produits.append({
+                "id": pid,
+                "nom": nom,
+                "prix": prix,
+                "disponible": dispo
+            })
+    return produits
+
+
+def enregistrer_commande(lignes, id_user=1):
+    """Enregistre les commandes avec le format: id_prod,id_user,quantite,date_commande"""
+    fichier_existe = os.path.exists(COMMANDE_CSV)
+    date_commande = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    with open(COMMANDE_CSV, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not fichier_existe:
+            writer.writerow(["id_prod", "id_user", "quantite", "date_commande"])
+        
+        for ligne in lignes:
+            writer.writerow([
+                ligne["id_prod"],
+                str(id_user),
+                str(ligne["quantite"]),
+                date_commande
+            ])
+
+
+def mettre_a_jour_stock(panier):
+    """Met à jour le stock disponible après validation de commande"""
+    rows = []
+    with open(PRODUIT_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        header = next(reader, None)
+        if header:
+            rows.append(header)
+        for row in reader:
+            if len(row) < 5:
+                rows.append(row)
+                continue
+            
+            pid = row[0]
+            try:
+                dispo = float(row[3])
+            except Exception:
+                dispo = 0
+            
+            # Chercher si ce produit est dans le panier
+            cmd = next((p for p in panier if str(p["id_prod"]) == str(pid)), None)
+            if cmd:
+                q = cmd["quantite"]
+                nouveau_dispo = max(0, dispo - q)
+                row[3] = str(int(nouveau_dispo))
+            rows.append(row)
+
+    with open(PRODUIT_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
 
 
 def lecture_users(csv_file='user.csv'):
@@ -43,10 +125,11 @@ def verify_user(identifiant, password, csv_file='user.csv'):
 
 class Api:
     global connexion, produit
-    def __init__(self, csv_file='user.csv', window=None):
+    def __init__(self, id_user=None, csv_file='user.csv', window=None):
         self.csv_file = csv_file
         self.window = window
         self.api_fonction = ApiFonction(csv_file)
+        self.id_user = id_user
 
     def register(self, identifiant, password, email, user_type):
         try:
@@ -95,8 +178,9 @@ class Api:
                     if user[4] == 'vendeur':
                         ProdAp = ProdApi('product.csv')
                         html = ProdAp.page()
-                        window = webview.create_window('Connexion / Inscription', html=html, js_api=api)
+                        window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
+                        webview.load_html(window)
                         connexion.destroy()
                         
                     elif user[4] == 'acheteur':
@@ -104,7 +188,7 @@ class Api:
                         html = ProdAp.page()
                         window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
-                        webview.start(window)
+                        webview.load_html(window)
                         connexion.destroy()
                     else:
                         pass   
@@ -145,6 +229,32 @@ class Api:
         except Exception as e:
             print("Erreur show_register:", e)
             return False
+        
+    def valider_commande(self, panier):
+        """Valide la commande et met à jour le stock"""
+        lignes = []
+        for item in panier:
+            try:
+                id_prod = item["id_prod"]
+                quantite = int(item["quantite"])
+            except Exception:
+                continue
+            if quantite <= 0:
+                continue
+            lignes.append({
+                "id_prod": id_prod,
+                "quantite": quantite
+            })
+        
+        if lignes:
+            enregistrer_commande(lignes, self.id_user)
+            mettre_a_jour_stock(lignes)
+            return {"success": True, "message": "Commande validée avec succès"}
+        
+        return {"success": False, "message": "Panier vide"}
+    
+    def get_products(self):
+        return self.produits
 
 
 def create_auth_page():
@@ -292,4 +402,4 @@ if __name__ == '__main__':
     api = Api('user.csv')
     connexion = webview.create_window('Connexion / Inscription', html=html, js_api=api)
     api.window = connexion
-    webview.start(api)
+    webview.start(api,debug=True)

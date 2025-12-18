@@ -397,7 +397,6 @@ class ApiCommande:
                 </tbody>
             </table>
             </div>
-
             <div class="card">
             <div id="summaryHeader">
                 <div>
@@ -513,6 +512,7 @@ class ApiCommande:
         });
 
         document.getElementById('validerBtn').addEventListener('click', () => {
+            console.log("Hello World");
             if (panier.length === 0) {
                 alert('Panier vide.');
                 return;
@@ -574,7 +574,13 @@ class ApiCommande:
 
 if __name__ == "__main__":
 
-    api = ApiCommande()  # Tu peux passer l'ID de l'utilisateur connecté ici
-    content = ApiCommande().page()
-    window = webview.create_window("Validation de commande", html=content, js_api=api, width=1200, height=800)
-    webview.start()
+    api = ApiCommande()
+    content = api.page()
+    window = webview.create_window(
+        "Validation de commande", 
+        html=content, 
+        js_api=api, 
+        width=1200, 
+        height=800
+    )
+    webview.start(debug=True)
