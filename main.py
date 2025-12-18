@@ -136,7 +136,7 @@ def verify_user(identifiant, password, csv_file='user.csv'):
 
 
 class Api:
-    global connexion, produit
+    global connexion, produit, vente
     def __init__(self, id_user=None, csv_file='user.csv', window=None):
         self.csv_file = csv_file
         self.window = window
@@ -198,7 +198,7 @@ class Api:
                         html = ProdAp.page()
                         window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
-                        webview.load_html(window)
+                        vente = webview.load_html(window)
                         connexion.destroy()
                         
                     elif user[5] == 'acheteur':
@@ -207,7 +207,7 @@ class Api:
                         html = ProdAp.page()
                         window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
                         api.window = window
-                        webview.load_html(window)
+                        produit = webview.load_html(window)
                         connexion.destroy()
                     else:
                         pass   
