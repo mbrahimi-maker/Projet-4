@@ -35,87 +35,12 @@ def lire_produits():
     return produits
 
 
-def enregistrer_commande(lignes, id_user=1):
-    """Enregistre les commandes avec le format: id_prod,id_user,quantite,date_commande"""
-    fichier_existe = os.path.exists(COMMANDE_CSV)
-    date_commande = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    with open(COMMANDE_CSV, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        if not fichier_existe:
-            writer.writerow(["id_prod", "id_user", "quantite", "date_commande"])
-        
-        for ligne in lignes:
-            writer.writerow([
-                ligne["id_prod"],
-                str(id_user),
-                str(ligne["quantite"]),
-                date_commande
-            ])
-
-
-def mettre_a_jour_stock(panier):
-    """Met à jour le stock disponible après validation de commande"""
-    rows = []
-    with open(PRODUIT_CSV, "r", newline="", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        header = next(reader, None)
-        if header:
-            rows.append(header)
-        for row in reader:
-            if len(row) < 5:
-                rows.append(row)
-                continue
-            
-            pid = row[0]
-            try:
-                dispo = float(row[3])
-            except Exception:
-                dispo = 0
-            
-            # Chercher si ce produit est dans le panier
-            cmd = next((p for p in panier if str(p["id_prod"]) == str(pid)), None)
-            if cmd:
-                q = cmd["quantite"]
-                nouveau_dispo = max(0, dispo - q)
-                row[3] = str(int(nouveau_dispo))
-            rows.append(row)
-
-    with open(PRODUIT_CSV, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerows(rows)
-
 
 class ApiCommande:
     def __init__(self, id_user=1):
         self.id_user = id_user
         self.produits = lire_produits()
 
-    def get_products(self):
-        return self.produits
-
-    def valider_commande(self, panier):
-        """Valide la commande et met à jour le stock"""
-        lignes = []
-        for item in panier:
-            try:
-                id_prod = item["id_prod"]
-                quantite = int(item["quantite"])
-            except Exception:
-                continue
-            if quantite <= 0:
-                continue
-            lignes.append({
-                "id_prod": id_prod,
-                "quantite": quantite
-            })
-        
-        if lignes:
-            enregistrer_commande(lignes, self.id_user)
-            mettre_a_jour_stock(lignes)
-            return {"success": True, "message": "Commande validée avec succès"}
-        
-        return {"success": False, "message": "Panier vide"}
     
     def page(self):
         produits = lire_produits()
