@@ -1,68 +1,121 @@
-name: DevSecOps CI
+name: DevSecOps Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  security:
+  security-analysis:
+    name: Security Analysis
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
       
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
       
-      - name: Install
+      - name: Install Tools
         run: |
+          python -m pip install --upgrade pip
           pip install bandit safety pylint
           pip install pywebview requests || true
       
-      - name: Header
+      - name: Create Header
         run: |
-          echo "# 🔒 DevSecOps Report" >> $GITHUB_STEP_SUMMARY
-          echo "**Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "# 🔒 DevSecOps Security Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Date** | $(date '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
       
-      - name: Bandit
+      - name: Bandit Security Scan
         run: |
-          echo "## 🔒 Bandit Security" >> $GITHUB_STEP_SUMMARY
-          bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv || true
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat bandit.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "## 🔒 Bandit - Security Issues" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv,./Data || true
+          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          echo "<summary>📄 Click to view Bandit report</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```
+          cat bandit.txt >> $GITHUB_STEP_SUMMARY || echo "No issues found" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
-      - name: Safety
+      - name: Safety Dependency Check
         run: |
-          echo "## 🛡️ Safety Dependencies" >> $GITHUB_STEP_SUMMARY
-          safety check > safety.txt || true
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat safety.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ Safety - Dependency Vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          safety check -o text > safety.txt || true
+          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          echo "<summary>📄 Click to view Safety report</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```
+          cat safety.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
-      - name: Pylint
+      - name: Pylint Code Quality
         run: |
-          echo "## ✅ Pylint Quality" >> $GITHUB_STEP_SUMMARY
-          find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" | xargs pylint --exit-zero > pylint.txt || true
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          head -n 50 pylint.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Pylint - Code Quality" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" -not -path "./Data/*" > files.txt || true
+          if [ -s files.txt ]; then
+            pylint --output-format=text --exit-zero $(cat files.txt) > pylint.txt || true
+          else
+            echo "No Python files found" > pylint.txt
+          fi
+          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          echo "<summary>📄 Click to view Pylint report</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```
+          head -n 100 pylint.txt >> $GITHUB_STEP_SUMMARY || echo "No issues found" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
-      - name: Upload
+      - name: Generate Statistics
+        run: |
+          echo "## 📊 Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          PY_FILES=$(find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" | wc -l)
+          echo "| Python Files | $PY_FILES |" >> $GITHUB_STEP_SUMMARY
+          TOTAL_LINES=$(find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" -exec cat {} \; | wc -l)
+          echo "| Total Lines | $TOTAL_LINES |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
+      
+      - name: Upload Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: reports
+          name: security-reports-${{ github.run_number }}
           path: |
             bandit.txt
             safety.txt
             pylint.txt
-
+            files.txt
+          retention-days: 30
+      
+      - name: Final Status
+        run: |
+          echo "## ✅ Pipeline Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Review the reports above for details." >> $GITHUB_STEP_SUMMARY
