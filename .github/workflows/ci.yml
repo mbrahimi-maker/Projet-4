@@ -33,8 +33,8 @@ jobs:
           echo "| Info | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Date** | $(date '+%Y-%m-%d %H:%M:%S') |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
       
       - name: Bandit Security Scan
@@ -45,10 +45,9 @@ jobs:
           bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv,./Data
           echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo "<summary>📄 Click to view Bandit report</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```
+          echo "<pre>" >> $GITHUB_STEP_SUMMARY
           cat bandit.txt >> $GITHUB_STEP_SUMMARY || echo "No issues found" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</pre>" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           exit 0
@@ -61,10 +60,9 @@ jobs:
           safety check -o text > safety.txt
           echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo "<summary>📄 Click to view Safety report</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```
+          echo "<pre>" >> $GITHUB_STEP_SUMMARY
           cat safety.txt >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</pre>" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           exit 0
@@ -82,10 +80,9 @@ jobs:
           fi
           echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo "<summary>📄 Click to view Pylint report</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```
+          echo "<pre>" >> $GITHUB_STEP_SUMMARY
           head -n 100 pylint.txt >> $GITHUB_STEP_SUMMARY || echo "No issues found" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</pre>" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           exit 0
