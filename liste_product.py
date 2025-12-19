@@ -346,6 +346,11 @@ class Api:
                 <h2>Répartition des ventes par quantité</h2>
                 <canvas id="globalSalesChart"></canvas>
             </div>
+
+            <div style="margin-top:16px;">
+                <h2>Répartition des ventes par prix</h2>
+                <canvas id="globalPriceChart"></canvas>
+            </div>
         </div>
 """
 
@@ -364,7 +369,10 @@ class Api:
         data_prod = Api.lecture_produce('produit.csv')
         header = data_prod[0]
 
+        circle_price = []
+
         circle_data = []
+
         for row in data_prod[1:]:
             # row = [id, Nom, Prix, Disponible, total_produit]
             nom = row[1]
@@ -374,9 +382,16 @@ class Api:
 
             vendu = max(total - dispo, 0)
 
+            montant = vendu * prix
+
             circle_data.append({
                 "nom": nom,
                 "vendu": vendu
+            })
+
+            circle_price.append({
+                "nom": nom,
+                "montant": montant
             })
         
 
@@ -384,12 +399,14 @@ class Api:
 
 
         content += f"""<script>const globalSalesData = {json.dumps(circle_data, ensure_ascii=False)};</script>"""
+        content += f"""<script>const globalPriceData = {json.dumps(circle_price, ensure_ascii=False)};</script>"""
         content += """
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
 
             let chart = null;
             let globalChart = null;
+            let globalPrice = null;
             
 
             window.addEventListener('pywebviewready', function() {
@@ -423,7 +440,60 @@ class Api:
                 attachProductLinks();
 
                 buildGlobalSalesChart();
+                buildGlobalPriceChart();
             });
+
+            function buildGlobalPriceChart(){
+                const labels = globalPriceData.map(p => p.nom);
+                const values = globalPriceData.map(p => p.montant);
+                const ctx = document.getElementById('globalPriceChart').getContext('2d');
+                    if (globalPrice) {
+                        globalPrice.destroy();
+                    }
+
+                globalChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Part des ventes',
+                            data: values,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                '#9966FF', '#FF9F40', '#66BB6A', '#AB47BC',
+                                '#29B6F6', '#EC407A', '#FFA726', '#8D6E63'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Répartition des ventes (total - disponible)'
+                            },
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.chart._metasets[0].total;
+                                        const percent = total > 0
+                                            ? (value / total * 100).toFixed(1)
+                                            : 0;
+                                        return `${label}: ${value} € ventes (${percent}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
 
             function buildGlobalSalesChart() {
                 const labels = globalSalesData.map(p => p.nom);
