@@ -1,0 +1,46 @@
+name: DevSecOps CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install tools
+        run: |
+          pip install bandit safety pylint
+          pip install -r requirements.txt || true
+      
+      - name: Bandit scan
+        run: bandit -r . -f txt -o bandit.txt || true
+        continue-on-error: true
+      
+      - name: Safety check
+        run: safety check -o text > safety.txt || true
+        continue-on-error: true
+      
+      - name: Pylint check
+        run: pylint **/*.py -o pylint.txt || true
+        continue-on-error: true
+      
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit.txt
+            safety.txt
+            pylint.txt
