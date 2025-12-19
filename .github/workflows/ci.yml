@@ -39,9 +39,10 @@ jobs:
       
       - name: Bandit Security Scan
         run: |
+          set +e
           echo "## 🔒 Bandit - Security Issues" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv,./Data || true
+          bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv,./Data
           echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo "<summary>📄 Click to view Bandit report</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -50,13 +51,14 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
+          exit 0
       
       - name: Safety Dependency Check
         run: |
+          set +e
           echo "## 🛡️ Safety - Dependency Vulnerabilities" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          safety check -o text > safety.txt || true
+          safety check -o text > safety.txt
           echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo "<summary>📄 Click to view Safety report</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -65,15 +67,16 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
+          exit 0
       
       - name: Pylint Code Quality
         run: |
+          set +e
           echo "## ✅ Pylint - Code Quality" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" -not -path "./Data/*" > files.txt || true
+          find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" -not -path "./Data/*" > files.txt
           if [ -s files.txt ]; then
-            pylint --output-format=text --exit-zero $(cat files.txt) > pylint.txt || true
+            pylint --output-format=text --exit-zero $(cat files.txt) > pylint.txt
           else
             echo "No Python files found" > pylint.txt
           fi
@@ -85,7 +88,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
+          exit 0
       
       - name: Generate Statistics
         run: |
@@ -98,7 +101,6 @@ jobs:
           TOTAL_LINES=$(find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" -not -path "./.venv/*" -exec cat {} \; | wc -l)
           echo "| Total Lines | $TOTAL_LINES |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
       
       - name: Upload Reports
         uses: actions/upload-artifact@v4
