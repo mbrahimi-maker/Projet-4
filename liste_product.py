@@ -10,6 +10,18 @@ class Api:
     def __init__(self, csv_file='produit.csv'):
         self.csv_file = csv_file
 
+    def lecture_produce(self, csv_file=None):
+        if csv_file is None:
+            csv_file = 'produit.csv'
+
+        csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
+        data_prod = []
+        with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
+            reader = csv.reader(csv_prod)
+            for row in reader:
+                data_prod.append(row)
+        return data_prod
+
     def page(self):
         content = """
         <html>
