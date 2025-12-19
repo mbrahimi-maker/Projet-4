@@ -33,27 +33,27 @@ jobs:
         run: |
           echo "## 🔒 Bandit Security" >> $GITHUB_STEP_SUMMARY
           bandit -r . -f txt -o bandit.txt --exclude ./venv,./env,./.venv || true
-          echo '```
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat bandit.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
       - name: Safety
         run: |
           echo "## 🛡️ Safety Dependencies" >> $GITHUB_STEP_SUMMARY
           safety check > safety.txt || true
-          echo '```
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat safety.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
       - name: Pylint
         run: |
           echo "## ✅ Pylint Quality" >> $GITHUB_STEP_SUMMARY
           find . -name "*.py" -not -path "./venv/*" -not -path "./env/*" | xargs pylint --exit-zero > pylint.txt || true
-          echo '```
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           head -n 50 pylint.txt >> $GITHUB_STEP_SUMMARY || echo "OK" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
       
       - name: Upload
