@@ -1,6 +1,7 @@
 import webview
 import csv
 import os
+import json
 
 
 
@@ -338,8 +339,15 @@ class Api:
                     '</tr>'
                 )
 
-        content += "</tbody></table>"
-        content += "</div>"
+        content += """
+            </tbody></table>
+
+            <div style="margin-top:16px;">
+                <h2>Répartition des ventes par quantité</h2>
+                <canvas id="globalSalesChart"></canvas>
+            </div>
+        </div>
+"""
 
         content += """
             <div id="productDetailPage" style="display:none;">
@@ -353,10 +361,36 @@ class Api:
             </div>
             """
 
+        data_prod = Api.lecture_produce('produit.csv')
+        header = data_prod[0]
+
+        circle_data = []
+        for row in data_prod[1:]:
+            # row = [id, Nom, Prix, Disponible, total_produit]
+            nom = row[1]
+            prix = float(row[2])
+            dispo = int(row[3])
+            total = int(row[4])
+
+            vendu = max(total - dispo, 0)
+
+            circle_data.append({
+                "nom": nom,
+                "vendu": vendu
+            })
+        
+
+
+
+
+        content += f"""<script>const globalSalesData = {json.dumps(circle_data, ensure_ascii=False)};</script>"""
         content += """
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
+
             let chart = null;
+            let globalChart = null;
+            
 
             window.addEventListener('pywebviewready', function() {
                 document.getElementById('addForm').addEventListener('submit', function(e) {
@@ -387,7 +421,64 @@ class Api:
                 });
 
                 attachProductLinks();
+
+                buildGlobalSalesChart();
             });
+
+            function buildGlobalSalesChart() {
+                const labels = globalSalesData.map(p => p.nom);
+                const values = globalSalesData.map(p => p.vendu);
+
+                const ctx = document.getElementById('globalSalesChart').getContext('2d');
+
+                if (globalChart) {
+                    globalChart.destroy();
+                }
+
+                globalChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Part des ventes',
+                            data: values,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                '#9966FF', '#FF9F40', '#66BB6A', '#AB47BC',
+                                '#29B6F6', '#EC407A', '#FFA726', '#8D6E63'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Répartition des ventes (total - disponible)'
+                            },
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.chart._metasets[0].total;
+                                        const percent = total > 0
+                                            ? (value / total * 100).toFixed(1)
+                                            : 0;
+                                        return `${label}: ${value} ventes (${percent}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
 
             function attachProductLinks() {
                 document.querySelectorAll('.product-link').forEach(link => {
