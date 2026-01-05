@@ -26,7 +26,7 @@ class check:
         :param password: The password to hash and check.
         :return: The number of times the password was found in the Pwned Passwords database.
         """
-        sha1password = hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
+        sha1password = hashlib.sha256(password.encode("utf-8")).hexdigest().upper()
         first5_char, tail = sha1password[:5], sha1password[5:]
         response = self.request_api_data(first5_char)
         return self.get_password_leaks_count(response, tail)
