@@ -39,7 +39,7 @@ jobs:
     - name: 🔒 Bandit - Security scan
       run: |
         echo "========== BANDIT =========="
-        bandit -r . -ll || echo "Bandit scan complete"
+        bandit -r . -f txt
       continue-on-error: true
     
     - name: 🛡️ Safety - Check dependencies
