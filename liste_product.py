@@ -374,7 +374,6 @@ class Api:
         circle_data = []
 
         for row in data_prod[1:]:
-            # row = [id, Nom, Prix, Disponible, total_produit]
             nom = row[1]
             prix = float(row[2])
             dispo = int(row[3])

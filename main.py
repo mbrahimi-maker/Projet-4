@@ -319,20 +319,14 @@ class Api:
                     if user[5] == 'vendeur':
                         ProdAp = ProdApi(csv_file='product.csv')
                         html = ProdAp.page()
-                        window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
-                        api.window = window
-                        connexion.destroy()
-                        vente = webview.load_html(window)
+                        self.window.load_html(html)
                         
                         
                     elif user[5] == 'acheteur':
                         self.setUser(user[0])
                         ProdAp = CommandeApi()
                         html = ProdAp.page()
-                        window = webview.create_window("Validation de commande", html=html, js_api=api, width=1200, height=800)
-                        api.window = window
-                        connexion.destroy()
-                        produit = webview.load_html(window)
+                        self.window.load_html(html)
                         
                     else:
                         pass   
@@ -546,4 +540,4 @@ if __name__ == '__main__':
     api = Api(csv_file='user.csv')
     connexion = webview.create_window('Connexion / Inscription', html=html, js_api=api)
     api.window = connexion
-    webview.start(api,debug=True)
+    webview.start(debug=True)
