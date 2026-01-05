@@ -13,7 +13,7 @@ class check:
         :return: API response.
         """
         url = "https://api.pwnedpasswords.com/range/" + first_five_char
-        res = requests.get(url)
+        res = requests.get(url, timeout=(3, 10))
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching: {res.status_code}, check the API.")
         return res
