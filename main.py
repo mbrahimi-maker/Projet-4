@@ -379,7 +379,7 @@ class Api:
                 id_prod = item["id_prod"]
                 quantite = int(item["quantite"])
             except Exception:
-                continue
+                return {"success": False, "message": "Erreur intatendue dans le panier"}
             if quantite <= 0:
                 continue
             lignes.append({
