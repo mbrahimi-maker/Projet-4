@@ -17,6 +17,12 @@ PRODUIT_CSV = os.path.join(DATA_DIR, "produit.csv")
 COMMANDE_CSV = os.path.join(DATA_DIR, "commande.csv")
 LOG_CSV = os.path.join(DATA_DIR, "logs.csv")
 
+def logs(user_id, message):
+    date_log = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(LOG_CSV, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([date_log, user_id, message])
+
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -102,6 +108,7 @@ def mettre_a_jour_stock(panier):
     with open(PRODUIT_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerows(rows)
+    logs(0, "Mise à jour du stock après commande")
 
 
 def lecture_users(csv_file='user.csv'):
@@ -112,6 +119,7 @@ def lecture_users(csv_file='user.csv'):
             reader = csv.reader(f)
             for row in reader:
                 users.append(row)
+            
     return users
 
 def lecture_login(csv_file='user.csv'):
@@ -162,6 +170,8 @@ class Api:
             quantit = 0
 
         Api.add_product(nom, prix, quantit, self.csv_file)
+        
+        logs(self.id_user, f"Ajout du produit: {nom}, Prix: {prix}, Quantité: {quantit}")
         return True
 
     def get_product_stats(self, nom):
@@ -292,6 +302,7 @@ class Api:
 
             for user in users[1:]:
                 if len(user) >= 2 and user[1].lower() == identifiant.lower():
+                    logs(self.id_user, f"Tentative d'inscription avec identifiant existant: {identifiant}")
                     return {'success': False, 'message': 'Cet identifiant existe déjà'}
 
             for user in users[1:]:
@@ -303,6 +314,7 @@ class Api:
             chec = check()
             if(chec.main(password)):
                 self.api_fonction.add_api(identifiant, hashed_password, email, e='acheteur', f=salt)
+                logs(self.id_user, f"Nouvel utilisateur inscrit: {identifiant}, Type: {user_type}")
                 return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
             else:
                 return {'success': False, 'message': "Erreur mot de passe compromis, choisissez-en un autre."}
@@ -321,21 +333,25 @@ class Api:
             for user in users[1:]:
                 if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == saltage_password(hashed_password, user[3]):
                     if user[5] == 'vendeur':
+                        self.setUser(user[0])
                         ProdAp = ProdApi(csv_file='product.csv')
                         html = ProdAp.page()
                         self.window.load_html(html)
+                        logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
 
                     elif user[5] == 'acheteur':
                         self.setUser(user[0])
                         ProdAp = CommandeApi()
                         html = ProdAp.page()
                         self.window.load_html(html)
+                        logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
                         
                     else:
                         pass   
                     
                     return {'success': True, 'message': 'Connexion réussie !'}
                 
+            logs(self.id_user, f"Échec de connexion pour l'identifiant: {identifiant}")
             return {'success': False, 'message': 'Identifiant ou mot de passe incorrect'}
         except Exception as e:
             print("Erreur login:", e)
@@ -370,6 +386,22 @@ class Api:
         except Exception as e:
             print("Erreur show_register:", e)
             return False
+
+    def logout(self):
+        """Déconnecte l'utilisateur et affiche la page de connexion"""
+        try:
+            if not self.window:
+                print("logout: window est None")
+                return False
+            html = create_auth_page()
+            self.window.load_html(html)
+            self.id_user = None
+            logs(0, "Utilisateur déconnecté")
+            return True
+        except Exception as e:
+            print("Erreur logout:", e)
+            return False
+        
         
     def valider_commande(self, panier):
         """Valide la commande et met à jour le stock"""
@@ -379,6 +411,7 @@ class Api:
                 id_prod = item["id_prod"]
                 quantite = int(item["quantite"])
             except Exception:
+                logs(self.id_user, "Erreur inattendue dans le panier lors de la validation de commande")
                 return {"success": False, "message": "Erreur intatendue dans le panier"}
             if quantite <= 0:
                 continue
@@ -390,8 +423,10 @@ class Api:
         if lignes:
             enregistrer_commande(lignes, self.id_user)
             mettre_a_jour_stock(lignes)
+            logs(self.id_user, "Commande validée avec succès")
             return {"success": True, "message": "Commande validée avec succès"}
         
+        logs(self.id_user, "Tentative de validation de commande avec panier vide")
         return {"success": False, "message": "Panier vide"}
     
     def get_products(self):

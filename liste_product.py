@@ -258,6 +258,27 @@ class Api:
             #backBtn span {
                 font-size: 16px;
             }
+            .btn-logout {
+                padding: 8px 16px;
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: #ffffff;
+                border: none;
+                border-radius: 999px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 10px 24px rgba(239,68,68,0.45);
+                transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s;
+            }
+            .btn-logout:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 16px 30px rgba(239,68,68,0.5);
+                filter: brightness(1.02);
+            }
+            .btn-logout:active {
+                transform: translateY(0);
+                box-shadow: 0 6px 14px rgba(239,68,68,0.4);
+            }
             #chartLegendNote {
                 text-align: center;
                 font-size: 11px;
@@ -290,6 +311,7 @@ class Api:
             <div>
             <h1>Bonjour, <span>inventaire</span></h1>
             </div>
+            <button id="logoutBtn" class="btn-logout">Déconnexion</button>
         </div>
         </div>
         """
@@ -409,6 +431,10 @@ class Api:
             
 
             window.addEventListener('pywebviewready', function() {
+                document.getElementById('logoutBtn').addEventListener('click', function() {
+                    window.pywebview.api.logout();
+                });
+
                 document.getElementById('addForm').addEventListener('submit', function(e) {
                     e.preventDefault();
                     const nom = document.getElementById('name').value;

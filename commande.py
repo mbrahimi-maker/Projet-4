@@ -282,6 +282,28 @@ class ApiCommande:
             @media (max-width: 900px) {
                 #layout { grid-template-columns: 1fr; }
             }
+            .btn-logout {
+                padding: 8px 16px;
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: #ffffff;
+                border: none;
+                border-radius: 999px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 10px 24px rgba(239,68,68,0.45);
+                transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s;
+                margin-left: auto;
+            }
+            .btn-logout:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 16px 30px rgba(239,68,68,0.5);
+                filter: brightness(1.02);
+            }
+            .btn-logout:active {
+                transform: translateY(0);
+                box-shadow: 0 6px 14px rgba(239,68,68,0.4);
+            }
         </style>
         </head>
         <body>
@@ -289,6 +311,7 @@ class ApiCommande:
         <div id="header">
             <h1>Valider votre <span>commande</span></h1>
             <p id="subtitle">Ajoutez les produits au récapitulatif, vérifiez le total puis confirmez.</p>
+            <button id="logoutBtn" class="btn-logout">Déconnexion</button>
         </div>
 
         <div id="layout">
@@ -355,6 +378,12 @@ class ApiCommande:
 
         <script>
         let panier = [];
+
+        window.addEventListener('pywebviewready', function() {
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                window.pywebview.api.logout();
+            });
+        });
 
         function majAffichagePanier() {
             const liste = document.getElementById('panierListe');
