@@ -1,7 +1,6 @@
 import webview
 import csv
 import os
-from datetime import datetime
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "Data")
 PRODUIT_CSV = os.path.join(DATA_DIR, "produit.csv")
