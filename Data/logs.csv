@@ -4,3 +4,16 @@ timestamp,id_user,action,
 2026-01-07 08:40:45,0,Utilisateur déconnecté
 2026-01-07 08:41:01,2,"Utilisateur connecté: vendeur, Type: vendeur"
 2026-01-07 08:41:03,0,Utilisateur déconnecté
+2026-01-07 08:54:21,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 08:55:26,0,Utilisateur déconnecté
+2026-01-07 08:55:30,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-07 08:56:32,0,Mise à jour du stock après commande
+2026-01-07 08:56:32,1,Commande validée avec succès
+2026-01-07 08:56:35,0,Utilisateur déconnecté
+2026-01-07 08:56:41,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-07 08:56:43,0,Utilisateur déconnecté
+2026-01-07 08:56:47,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 08:56:49,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 09:00:51,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-07 09:00:56,0,Utilisateur déconnecté
+2026-01-07 09:01:00,2,"Utilisateur connecté: vendeur, Type: vendeur"

@@ -3,7 +3,7 @@ from fonction import fct as ApiFonction
 from checkmypass import check as check
 from liste_product import Api as ProdApi 
 from commande import ApiCommande as CommandeApi
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import warnings
 
@@ -243,6 +243,93 @@ class Api:
                 data_prod.append(row)
         return data_prod
 
+    def get_sales_by_day_week(self, product_name):
+        """Récupère les ventes par jour pour la dernière semaine"""
+        commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
+        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
+        
+        # Trouver l'ID du produit
+        product_id = None
+        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # Skip header
+            for row in reader:
+                if len(row) >= 2 and row[1] == product_name:
+                    product_id = row[0]
+                    break
+        
+        if not product_id:
+            return {}
+        
+        sales_by_day = {}
+        
+        # Initialiser les 7 derniers jours
+        today = datetime.now()
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_str = day.strftime('%Y-%m-%d')
+            sales_by_day[day_str] = 0
+        
+        # Lire les commandes
+        if os.path.exists(commande_path):
+            with open(commande_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)  # Skip header
+                for row in reader:
+                    if len(row) >= 4 and row[0] == product_id:
+                        try:
+                            qty = int(row[2])
+                            date_str = row[3][:10]  # Format YYYY-MM-DD
+                            if date_str in sales_by_day:
+                                sales_by_day[date_str] += qty
+                        except:
+                            pass
+        
+        return sales_by_day
+
+    def get_sales_by_day_month(self, product_name):
+        """Récupère les ventes par jour pour le dernier mois"""
+        commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
+        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
+        
+        # Trouver l'ID du produit
+        product_id = None
+        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # Skip header
+            for row in reader:
+                if len(row) >= 2 and row[1] == product_name:
+                    product_id = row[0]
+                    break
+        
+        if not product_id:
+            return {}
+        
+        sales_by_day = {}
+        
+        # Initialiser les 30 derniers jours
+        today = datetime.now()
+        for i in range(29, -1, -1):
+            day = today - timedelta(days=i)
+            day_str = day.strftime('%Y-%m-%d')
+            sales_by_day[day_str] = 0
+        
+        # Lire les commandes
+        if os.path.exists(commande_path):
+            with open(commande_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)  # Skip header
+                for row in reader:
+                    if len(row) >= 4 and row[0] == product_id:
+                        try:
+                            qty = int(row[2])
+                            date_str = row[3][:10]  # Format YYYY-MM-DD
+                            if date_str in sales_by_day:
+                                sales_by_day[date_str] += qty
+                        except:
+                            pass
+        
+        return sales_by_day
 
     def add_product(self, nom, prix, quantit, csv_file=None):
         if csv_file is None:

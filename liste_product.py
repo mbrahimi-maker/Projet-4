@@ -2,6 +2,7 @@ import webview
 import csv
 import os
 import json
+from datetime import datetime, timedelta
 
 
 
@@ -22,6 +23,94 @@ class Api:
             for row in reader:
                 data_prod.append(row)
         return data_prod
+
+    def get_sales_by_day_week(self, product_name):
+        """Récupère les ventes par jour pour la dernière semaine"""
+        commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
+        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
+        
+        # Trouver l'ID du produit
+        product_id = None
+        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # Skip header
+            for row in reader:
+                if len(row) >= 2 and row[1] == product_name:
+                    product_id = row[0]
+                    break
+        
+        if not product_id:
+            return {}
+        
+        sales_by_day = {}
+        
+        # Initialiser les 7 derniers jours
+        today = datetime.now()
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_str = day.strftime('%Y-%m-%d')
+            sales_by_day[day_str] = 0
+        
+        # Lire les commandes
+        if os.path.exists(commande_path):
+            with open(commande_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)  # Skip header
+                for row in reader:
+                    if len(row) >= 4 and row[0] == product_id:
+                        try:
+                            qty = int(row[2])
+                            date_str = row[3][:10]  # Format YYYY-MM-DD
+                            if date_str in sales_by_day:
+                                sales_by_day[date_str] += qty
+                        except:
+                            pass
+        
+        return sales_by_day
+
+    def get_sales_by_day_month(self, product_name):
+        """Récupère les ventes par jour pour le dernier mois"""
+        commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
+        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
+        
+        # Trouver l'ID du produit
+        product_id = None
+        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # Skip header
+            for row in reader:
+                if len(row) >= 2 and row[1] == product_name:
+                    product_id = row[0]
+                    break
+        
+        if not product_id:
+            return {}
+        
+        sales_by_day = {}
+        
+        # Initialiser les 30 derniers jours
+        today = datetime.now()
+        for i in range(29, -1, -1):
+            day = today - timedelta(days=i)
+            day_str = day.strftime('%Y-%m-%d')
+            sales_by_day[day_str] = 0
+        
+        # Lire les commandes
+        if os.path.exists(commande_path):
+            with open(commande_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)  # Skip header
+                for row in reader:
+                    if len(row) >= 4 and row[0] == product_id:
+                        try:
+                            qty = int(row[2])
+                            date_str = row[3][:10]  # Format YYYY-MM-DD
+                            if date_str in sales_by_day:
+                                sales_by_day[date_str] += qty
+                        except:
+                            pass
+        
+        return sales_by_day
 
     def page(self):
         content = """
@@ -385,6 +474,20 @@ class Api:
                     <canvas id="myChart"></canvas>
                 </div>
                 <div id="chartLegendNote">Vert = stock disponible, rose = stock déjà utilisé.</div>
+                
+                <div style="margin-top: 30px;">
+                    <h2>Ventes sur la dernière semaine</h2>
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <canvas id="weekChart"></canvas>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h2>Ventes sur le dernier mois</h2>
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <canvas id="monthChart"></canvas>
+                    </div>
+                </div>
             </div>
             """
 
@@ -648,10 +751,123 @@ class Api:
                                 }
                             }
                         });
+                        
+                        // Afficher les graphiques de ventes
+                        window.pywebview.api.get_sales_by_day_week(productName).then(weekData => {
+                            buildWeekChart(weekData);
+                        });
+                        
+                        window.pywebview.api.get_sales_by_day_month(productName).then(monthData => {
+                            buildMonthChart(monthData);
+                        });
                     }, 80);
                 }).catch(err => {
                     console.error('Erreur:', err);
                     alert('Erreur de chargement');
+                });
+            }
+            
+            let weekChartObj = null;
+            let monthChartObj = null;
+            
+            function buildWeekChart(weekData) {
+                const labels = Object.keys(weekData).map(date => {
+                    const d = new Date(date + 'T00:00:00');
+                    return d.toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' });
+                });
+                const values = Object.values(weekData);
+                
+                const ctx = document.getElementById('weekChart').getContext('2d');
+                if (weekChartObj) {
+                    weekChartObj.destroy();
+                }
+                
+                weekChartObj = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ventes (quantité)',
+                            data: values,
+                            backgroundColor: '#5b8def',
+                            borderColor: '#3d5fa3',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            title: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function buildMonthChart(monthData) {
+                const labels = Object.keys(monthData).map(date => {
+                    const d = new Date(date + 'T00:00:00');
+                    return d.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+                });
+                const values = Object.values(monthData);
+                
+                const ctx = document.getElementById('monthChart').getContext('2d');
+                if (monthChartObj) {
+                    monthChartObj.destroy();
+                }
+                
+                monthChartObj = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ventes (quantité)',
+                            data: values,
+                            borderColor: '#4caf93',
+                            backgroundColor: 'rgba(76, 175, 147, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#4caf93',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            title: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
                 });
             }
             </script>
