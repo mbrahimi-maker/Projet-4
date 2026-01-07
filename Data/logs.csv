@@ -145,3 +145,52 @@ timestamp,id_user,action,
 2026-01-07 13:22:42,2,Stock total du produit banane (ID: 1) modifié à 3600
 2026-01-07 13:23:08,2,Prix du produit banane (ID: 1) modifié à 1.0
 2026-01-07 13:23:08,2,Stock disponible du produit banane (ID: 1) augmenté de 3000
+2026-01-07 13:35:27,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:35:27,2,Stock total du produit banane (ID: 1) modifié à 3700
+2026-01-07 13:36:07,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:36:07,2,Stock disponible du produit banane (ID: 1) augmenté de 3000
+2026-01-07 13:37:19,2,Stock total du produit banane (ID: 1) modifié à 3700
+2026-01-07 13:42:52,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:42:52,2,Stock disponible du produit banane (ID: 1) augmenté de 300
+2026-01-07 13:43:01,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:43:01,2,Stock total du produit banane (ID: 1) modifié à 4000
+2026-01-07 13:43:37,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:43:37,2,Stock disponible du produit banane (ID: 1) augmenté de 300
+2026-01-07 13:44:52,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:44:52,2,Stock disponible du produit banane (ID: 1) augmenté de 500
+2026-01-07 13:45:02,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:45:02,2,Stock total du produit banane (ID: 1) modifié à 300
+2026-01-07 13:45:10,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:45:10,2,Stock disponible du produit banane (ID: 1) augmenté de 500
+2026-01-07 13:46:07,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:07,2,Stock total du produit banane (ID: 1) modifié à 300
+2026-01-07 13:46:14,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:20,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:20,2,Stock disponible du produit banane (ID: 1) augmenté de 500
+2026-01-07 13:46:32,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:32,2,Stock total du produit banane (ID: 1) modifié à 600
+2026-01-07 13:46:40,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:40,2,Stock disponible du produit banane (ID: 1) augmenté de 500
+2026-01-07 13:46:46,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:46:46,2,Stock total du produit banane (ID: 1) modifié à 800
+2026-01-07 13:47:29,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:47:29,2,Stock disponible du produit banane (ID: 1) augmenté de 900
+2026-01-07 13:47:39,0,Utilisateur déconnecté
+2026-01-07 13:47:47,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:47:47,2,Stock disponible du produit banane (ID: 1) augmenté de 901
+2026-01-07 13:47:55,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:47:55,2,Stock total du produit banane (ID: 1) modifié à 1000
+2026-01-07 13:48:05,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:48:05,2,Stock disponible du produit banane (ID: 1) augmenté de 901
+2026-01-07 13:48:11,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:48:11,2,Stock total du produit banane (ID: 1) modifié à 2000
+2026-01-07 13:50:15,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:50:15,2,Stock total du produit banane (ID: 1) modifié à 1000
+2026-01-07 13:55:34,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:55:34,2,Erreur lors de la modification du stock: invalid literal for int() with base 10: 'stock'
+2026-01-07 13:55:37,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:55:37,2,Erreur lors de la modification du stock: invalid literal for int() with base 10: 'stock'
+2026-01-07 13:57:26,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:57:26,2,Stock total du produit banane (ID: 1) modifié à 1500
+2026-01-07 13:57:32,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:57:32,2,Stock disponible du produit banane (ID: 1) augmenté de 2000

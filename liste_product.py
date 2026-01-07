@@ -534,17 +534,25 @@ class Api:
                             const productId = this.getAttribute('data-product-id');
                             const newPrice = tr.querySelector('.price-input').value;
                             const newStock = tr.querySelector('.stock-input').value;
+                            const newTotal = tr.querySelector('.total-input').value;
                             
-                            if (!newPrice || !newStock) {
+                            if (!newPrice || !newStock || !productId || !newTotal) {
                                 alert('Veuillez remplir tous les champs');
                                 return;
                             }
                             
                             window.pywebview.api.update_product_price(productId, newPrice).then(priceResult => {
-                                window.pywebview.api.add_stock(productId, newStock, 'stock').then(stockResult => {
+                                window.pywebview.api.add_stock(productId, newStock, newTotal).then(stockResult => {
                                     if (priceResult.success && stockResult.success) {
-                                        alert('Produit modifié avec succès');
-                                        showMainPage();
+                                        // Récupérer les données mises à jour
+                                        window.pywebview.api.get_product_stats(productId).then(stats => {
+                                            if (stats) {
+                                                tr.querySelector('.price-input').value = stats.prix;
+                                                tr.querySelector('.stock-input').value = Math.floor(stats.disponible);
+                                                tr.querySelector('.total-input').value = Math.floor(stats.total);
+                                            }
+                                            alert('Produit modifié avec succès');
+                                        });
                                     } else {
                                         alert('Erreur lors de la modification');
                                     }
@@ -585,8 +593,18 @@ class Api:
                         window.pywebview.api.update_product_price(productId, newPrice).then(priceResult => {
                             window.pywebview.api.add_stock(productId, newStock, newTotal).then(stockResult => {
                                 if (priceResult.success && stockResult.success) {
-                                    alert('Produit modifié avec succès');
-                                    showMainPage();
+                                    // Récupérer les données mises à jour
+                                    window.pywebview.api.get_product_stats(productId).then(stats => {
+                                        if (stats) {
+                                            const row = document.querySelector('tr[data-product-id="' + productId + '"]');
+                                            if (row) {
+                                                row.querySelector('.price-input').value = stats.prix;
+                                                row.querySelector('.stock-input').value = Math.floor(stats.disponible);
+                                                row.querySelector('.total-input').value = Math.floor(stats.total);
+                                            }
+                                        }
+                                        alert('Produit modifié avec succès');
+                                    });
                                 } else {
                                     alert('Erreur lors de la modification');
                                 }

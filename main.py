@@ -291,12 +291,12 @@ class Api:
                     return 'stock'
                 elif total != current_total:
                     return 'total'
+            return None
 
     def add_stock(self, product_id, quantity, total):
         """Ajoute du stock à un produit par ID"""
         try:
             type = self.type_update(product_id, quantity, total)
-            print(type)
             if type == 'stock':
                 try:
                     quantity = int(quantity)
@@ -341,12 +341,13 @@ class Api:
                         for row in reader:
                             if len(row) >= 5 and row[0] == str(product_id):
                                 product_name = row[1]
-                                current_total = int(row[4])
+                                
                                 current_stock = int(row[3])
+                                current_total = int(row[4])
                                 add = total - current_total
-                                row[4] = str(current_stock + add)
-                                row[3] = str(total)
-                                print(row)
+
+                                row[3] = str(current_stock + add)
+                                row[4] = str(total)
                                 
                             rows.append(row)
                     
