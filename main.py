@@ -177,7 +177,7 @@ def get_sales_week(self, product_name):
                         if date_str in sales_by_day:
                             sales_by_day[date_str] += qty
                     except:
-                        pass
+                         return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
     
     return sales_by_day
 
@@ -221,7 +221,7 @@ def get_sales_month(self, product_name):
                         if date_str in sales_by_day:
                             sales_by_day[date_str] += qty
                     except:
-                        pass
+                         return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
     
     return sales_by_day
 
@@ -374,7 +374,8 @@ class Api:
                             row[3] = str(quantity)
                             row[4] = str(total_stock + add)
                         except:
-                            pass
+                            return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
+                        
                     rows.append(row)
             
             with open(PRODUIT_CSV, 'w', newline='', encoding='utf-8') as f:
@@ -427,7 +428,7 @@ class Api:
                             if date_str in sales_by_day:
                                 sales_by_day[date_str] += qty
                         except:
-                            pass
+                            return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
         
         return sales_by_day
 
@@ -471,7 +472,7 @@ class Api:
                             if date_str in sales_by_day:
                                 sales_by_day[date_str] += qty
                         except:
-                            pass
+                             return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
         
         return sales_by_day
 
