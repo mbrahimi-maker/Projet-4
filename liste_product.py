@@ -24,7 +24,28 @@ class Api:
                 data_prod.append(row)
         return data_prod
 
-    
+
+    def get_product_stats(self, nom):
+        """Récupère les statistiques d'un produit"""
+        data_prod = self.lecture_produce(self.csv_file)
+        for row in data_prod[1:]:
+            if len(row) >= 5 and row[1] == nom:
+                try:
+                    disponible = float(row[3])
+                    total = float(row[4])
+                    indisponible = total - disponible
+                    return {
+                        'nom': nom,
+                        'prix': row[2],
+                        'disponible': disponible,
+                        'indisponible': indisponible,
+                        'total': total
+                    }
+                except (ValueError, IndexError):
+                    return None
+        return None
+
+
 
     def page(self):
         content = """
@@ -288,6 +309,27 @@ class Api:
                 color: var(--text-muted);
                 margin-top: 2px;
             }
+            .price-input, .stock-input {
+                width: 80px;
+                padding: 6px;
+                border: 1px solid var(--border-soft);
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            .btn-update {
+                padding: 6px 12px;
+                background: linear-gradient(135deg, #4caf93, #5dd9a3);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .btn-update:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(76,175,147,0.3);
+            }
             @media (max-width: 720px) {
                 body {
                     padding: 16px;
@@ -337,7 +379,8 @@ class Api:
             <hr />
             """
 
-        data_prod = Api.lecture_produce('produit.csv')
+        api_instance = Api()
+        data_prod = api_instance.lecture_produce('produit.csv')
         header = data_prod[0]
 
         if header and len(header) >= 5:
@@ -348,6 +391,7 @@ class Api:
                 f'<th scope="col">{header[2]}</th>'
                 f'<th scope="col">{header[3]}</th>'
                 f'<th scope="col">{header[4]}</th>'
+                '<th scope="col">Actions</th>'
                 '</tr></thead><tbody id="tbody">'
             )
         else:
@@ -356,11 +400,12 @@ class Api:
         for row in data_prod[1:]:
             if len(row) >= 5 and row[0] != "id":
                 content += (
-                    '<tr>'
+                    '<tr data-product-id="' + row[0] + '" data-product-name="' + row[1] + '">'
                     f'<th scope="row"><a href="javascript:void(0)" class="product-link" data-product="{row[1]}">{row[1]}</a></th>'
-                    f'<td>{row[2]} €</td>'
-                    f'<td><span class="qty-badge"><span class="qty-dot"></span>{row[3]}</span></td>'
+                    f'<td><input type="number" step="0.01" class="price-input" value="{row[2]}" data-product-id="{row[0]}"></td>'
+                    f'<td><input type="number" class="stock-input" value="{row[3]}" data-product-id="{row[0]}"></td>'
                     f'<td>{row[4]}</td>'
+                    f'<td><button class="btn-update" data-product-id="{row[0]}" data-product-name="{row[1]}">Enregistrer</button></td>'
                     '</tr>'
                 )
 
@@ -458,16 +503,55 @@ class Api:
                     const prix = document.getElementById('price').value;
                     const quantit = document.getElementById('quantity').value;
 
-                    window.pywebview.api.add_product_api(nom, prix, quantit).then(() => {
+                    window.pywebview.api.add_product_api(nom, prix, quantit).then((result) => {
                         const tbody = document.getElementById('tbody');
                         const tr = document.createElement('tr');
+                        const productId = result.id;
+                        
                         tr.innerHTML =
                         '<th scope="row"><a href="javascript:void(0)" class="product-link" data-product="' + nom + '">' + nom +
-                        '</a></th><td>' + prix + ' €</td>' +
-                        '<td><span class="qty-badge"><span class="qty-dot"></span>' + quantit +
-                        '</span></td><td>' + quantit + '</td>';
+                        '</a></th>' +
+                        '<td><input type="number" step="0.01" class="price-input" value="' + prix + '" data-product-id="' + productId + '"></td>' +
+                        '<td><input type="number" class="stock-input" value="' + quantit + '" data-product-id="' + productId + '"></td>' +
+                        '<td>' + quantit + '</td>' +
+                        '<td><button class="btn-update" data-product-id="' + productId + '" data-product-name="' + nom + '">Enregistrer</button></td>';
+                        
+                        tr.setAttribute('data-product-id', productId);
+                        tr.setAttribute('data-product-name', nom);
                         tbody.appendChild(tr);
                         document.getElementById('addForm').reset();
+                        
+                        // Ajouter l'event listener au nouveau bouton
+                        const newButton = tr.querySelector('.btn-update');
+                        newButton.addEventListener('click', function() {
+                            const productId = this.getAttribute('data-product-id');
+                            const productName = this.getAttribute('data-product-name');
+                            const newPrice = tr.querySelector('.price-input').value;
+                            const newStock = tr.querySelector('.stock-input').value;
+                            
+                            if (!newPrice || !newStock) {
+                                alert('Veuillez remplir tous les champs');
+                                return;
+                            }
+                            
+                            window.pywebview.api.update_product_price(productName, newPrice).then(priceResult => {
+                                window.pywebview.api.add_stock(productName, newStock).then(stockResult => {
+                                    if (priceResult.success && stockResult.success) {
+                                        alert('Produit modifié avec succès');
+                                        showMainPage();
+                                    } else {
+                                        alert('Erreur lors de la modification');
+                                    }
+                                }).catch(err => {
+                                    console.error('Erreur stock:', err);
+                                    alert('Erreur lors de la modification du stock');
+                                });
+                            }).catch(err => {
+                                console.error('Erreur prix:', err);
+                                alert('Erreur lors de la modification du prix');
+                            });
+                        });
+                        
                         attachProductLinks();
                     }).catch(err => {
                         console.error('Erreur :', err);
@@ -477,6 +561,38 @@ class Api:
 
                 document.getElementById('backBtn').addEventListener('click', function() {
                     showMainPage();
+                });
+
+                // Event listener pour les boutons Enregistrer
+                document.querySelectorAll('.btn-update').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        const productName = this.getAttribute('data-product-name');
+                        const newPrice = document.querySelector('.price-input[data-product-id="' + productId + '"]').value;
+                        const newStock = document.querySelector('.stock-input[data-product-id="' + productId + '"]').value;
+                        
+                        if (!newPrice || !newStock) {
+                            alert('Veuillez remplir tous les champs');
+                            return;
+                        }
+                        
+                        window.pywebview.api.update_product_price(productName, newPrice).then(priceResult => {
+                            window.pywebview.api.add_stock(productName, newStock).then(stockResult => {
+                                if (priceResult.success && stockResult.success) {
+                                    alert('Produit modifié avec succès');
+                                    showMainPage();
+                                } else {
+                                    alert('Erreur lors de la modification');
+                                }
+                            }).catch(err => {
+                                console.error('Erreur stock:', err);
+                                alert('Erreur lors de la modification du stock');
+                            });
+                        }).catch(err => {
+                            console.error('Erreur prix:', err);
+                            alert('Erreur lors de la modification du prix');
+                        });
+                    });
                 });
 
                 attachProductLinks();

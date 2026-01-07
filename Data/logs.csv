@@ -38,3 +38,37 @@ timestamp,id_user,action,
 2026-01-07 10:50:14,2,"Utilisateur connecté: vendeur, Type: vendeur"
 2026-01-07 10:50:27,2,"Ajout du produit: micro, Prix: 60.0, Quantité: 20"
 2026-01-07 10:50:27,2,"Ajout du produit: micro, Prix: 60.0, Quantité: 20"
+2026-01-07 11:08:19,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:18:37,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:18:50,2,Prix du produit banane modifié à 6.05
+2026-01-07 11:18:50,2,Stock du produit banane augmenté de 68
+2026-01-07 11:20:10,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:20:17,2,Prix du produit banane modifié à 6.05
+2026-01-07 11:20:17,2,Stock du produit banane augmenté de 70
+2026-01-07 11:24:37,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:24:51,2,Prix du produit poire modifié à 1.11
+2026-01-07 11:24:51,2,Stock du produit poire augmenté de 345
+2026-01-07 11:32:21,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:34:46,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:35:03,2,"Ajout du produit: notre dame lego, Prix: 300.0, Quantité: 10"
+2026-01-07 11:35:03,2,"Ajout du produit: notre dame lego, Prix: 300.0, Quantité: 10"
+2026-01-07 11:41:07,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:41:17,2,"Ajout du produit: test, Prix: 12.0, Quantité: 1"
+2026-01-07 11:41:17,2,"Ajout du produit: test, Prix: 12.0, Quantité: 1"
+2026-01-07 11:44:05,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:45:00,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:49:18,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 11:49:20,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:54:41,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:59:01,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 11:59:54,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 12:02:26,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 12:02:29,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 12:05:37,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 12:05:39,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-07 12:14:36,2,"Ajout du produit: assiette, Prix: 20.0, Quantité: 120"
+2026-01-07 12:17:07,2,"Ajout du produit: assiettes, Prix: 10.0, Quantité: 150"
+2026-01-07 12:17:16,2,Prix du produit assiettes modifié à 15.0
+2026-01-07 12:17:16,2,Stock du produit assiettes augmenté de 150
+2026-01-07 12:19:15,2,Prix du produit assiettes modifié à 9.0
+2026-01-07 12:19:15,2,Stock du produit assiettes augmenté de 150

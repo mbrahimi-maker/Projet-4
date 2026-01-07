@@ -137,93 +137,8 @@ def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-def get_sales_week(self, product_name):
-    """Récupère les ventes par jour pour la dernière semaine"""
-    commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
-    produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
-    
-    # Trouver l'ID du produit
-    product_id = None
-    with open(produit_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        next(reader, None)  # Skip header
-        for row in reader:
-            if len(row) >= 2 and row[1] == product_name:
-                product_id = row[0]
-                break
-    
-    if not product_id:
-        return {}
-    
-    sales_by_day = {}
-    
-    # Initialiser les 7 derniers jours
-    today = datetime.now()
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        day_str = day.strftime('%Y-%m-%d')
-        sales_by_day[day_str] = 0
-    
-    # Lire les commandes
-    if os.path.exists(commande_path):
-        with open(commande_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # Skip header
-            for row in reader:
-                if len(row) >= 4 and row[0] == product_id:
-                    try:
-                        qty = int(row[2])
-                        date_str = row[3][:10]  # Format YYYY-MM-DD
-                        if date_str in sales_by_day:
-                            sales_by_day[date_str] += qty
-                    except:
-                         return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
-    
-    return sales_by_day
 
-def get_sales_month(self, product_name):
-    """Récupère les ventes par jour pour le dernier mois"""
-    commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
-    produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
-    
-    # Trouver l'ID du produit
-    product_id = None
-    with open(produit_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        next(reader, None)  # Skip header
-        for row in reader:
-            if len(row) >= 2 and row[1] == product_name:
-                product_id = row[0]
-                break
-    
-    if not product_id:
-        return {}
-    
-    sales_by_day = {}
-    
-    # Initialiser les 30 derniers jours
-    today = datetime.now()
-    for i in range(29, -1, -1):
-        day = today - timedelta(days=i)
-        day_str = day.strftime('%Y-%m-%d')
-        sales_by_day[day_str] = 0
-    
-    # Lire les commandes
-    if os.path.exists(commande_path):
-        with open(commande_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # Skip header
-            for row in reader:
-                if len(row) >= 4 and row[0] == product_id:
-                    try:
-                        qty = int(row[2])
-                        date_str = row[3][:10]  # Format YYYY-MM-DD
-                        if date_str in sales_by_day:
-                            sales_by_day[date_str] += qty
-                    except:
-                         return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
-    
-    return sales_by_day
+
 
 def verify_user(identifiant, password, csv_file='user.csv'):
     users = lecture_users(csv_file)
@@ -246,6 +161,13 @@ class Api:
     def setUser(self, id_user):
         self.id_user = id_user
 
+    def get_product_id(self, nom):
+        data_prod = self.lecture_produce(self.csv_file)
+        for row in data_prod[1:]:
+            if len(row) >= 2 and row[1] == nom:
+                return row[0]
+        return None
+    
     def add_product_api(self, nom, prix, quantit):
         try:
             prix = float(prix)
@@ -256,13 +178,12 @@ class Api:
         except:
             quantit = 0
 
-        self.add_product(nom=nom, prix=prix, quantit=quantit)
-        
-        logs(self.id_user, f"Ajout du produit: {nom}, Prix: {prix}, Quantité: {quantit}")
-        return True
+        product_id = self.add_product(nom=nom, prix=prix, quantit=quantit)
+        return {'success': True, 'id': product_id}
 
     def get_product_stats(self, nom):
-        data_prod = self.lecture_produce(self.csv_file)
+        """Récupère les statistiques d'un produit"""
+        data_prod = self.lecture_produce("produit.csv")
         for row in data_prod[1:]:
             if len(row) >= 5 and row[1] == nom:
                 try:
@@ -279,6 +200,7 @@ class Api:
                 except (ValueError, IndexError):
                     return None
         return None
+
 
     def set_prod(nom, prix=0, quantit=0, csv_file=None):
         if csv_file is None:
@@ -367,14 +289,11 @@ class Api:
                 reader = csv.reader(f)
                 for row in reader:
                     if len(row) >= 4 and row[1] == product_name:
-                        try:
-                            current_stock = int(row[3])
-                            total_stock = int(row[4])
-                            add = quantity - current_stock
-                            row[3] = str(quantity)
-                            row[4] = str(total_stock + add)
-                        except:
-                            return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
+                        current_stock = int(row[3])
+                        total_stock = int(row[4])
+                        add = quantity - current_stock
+                        row[3] = str(quantity)
+                        row[4] = str(total_stock + add)
                         
                     rows.append(row)
             
@@ -428,7 +347,7 @@ class Api:
                             if date_str in sales_by_day:
                                 sales_by_day[date_str] += qty
                         except:
-                            return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
+                            pass
         
         return sales_by_day
 
@@ -516,6 +435,7 @@ class Api:
             writer = csv.writer(file)
             writer.writerows(data_prod)
         logs(self.id_user, f"Ajout du produit: {nom}, Prix: {prix}, Quantité: {quantit}")
+        return next_id
 
     def register(self, identifiant, password, email, user_type):
         try:
@@ -567,9 +487,12 @@ class Api:
                 if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == saltage_password(hashed_password, user[3]):
                     if user[5] == 'vendeur':
                         self.setUser(user[0])
-                        ProdAp = ProdApi(csv_file='product.csv')
+                        ProdAp = ProdApi(csv_file='produit.csv')
                         html = ProdAp.page()
                         self.window.load_html(html)
+                        # Re-expose l'API main pour que les appels JS fonctionnent
+                        self.window.expose(self)
+                        self.csv_file = 'produit.csv'
                         logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
 
                     elif user[5] == 'acheteur':
@@ -577,6 +500,7 @@ class Api:
                         ProdAp = CommandeApi()
                         html = ProdAp.page()
                         self.window.load_html(html)
+                        self.csv_file = 'produit.csv'
                         logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
                         
                     else:
