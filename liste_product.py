@@ -25,17 +25,17 @@ class Api:
         return data_prod
 
 
-    def get_product_stats(self, nom):
-        """Récupère les statistiques d'un produit"""
+    def get_product_stats(self, product_id):
+        """Récupère les statistiques d'un produit par ID"""
         data_prod = self.lecture_produce(self.csv_file)
         for row in data_prod[1:]:
-            if len(row) >= 5 and row[1] == nom:
+            if len(row) >= 5 and row[0] == str(product_id):
                 try:
                     disponible = float(row[3])
                     total = float(row[4])
                     indisponible = total - disponible
                     return {
-                        'nom': nom,
+                        'nom': row[1],
                         'prix': row[2],
                         'disponible': disponible,
                         'indisponible': indisponible,
@@ -164,6 +164,13 @@ class Api:
                 content: "+";
                 font-size: 18px;
                 margin-right: 2px;
+            }
+            .total-input {
+                width: 80px;
+                padding: 6px;
+                border: 1px solid var(--border-soft);
+                border-radius: 4px;
+                font-size: 12px;
             }
             hr {
                 border: none;
@@ -401,10 +408,10 @@ class Api:
             if len(row) >= 5 and row[0] != "id":
                 content += (
                     '<tr data-product-id="' + row[0] + '" data-product-name="' + row[1] + '">'
-                    f'<th scope="row"><a href="javascript:void(0)" class="product-link" data-product="{row[1]}">{row[1]}</a></th>'
+                    f'<th scope="row"><a href="javascript:void(0)" class="product-link" data-product-id="{row[0]}">{row[1]}</a></th>'
                     f'<td><input type="number" step="0.01" class="price-input" value="{row[2]}" data-product-id="{row[0]}"></td>'
                     f'<td><input type="number" class="stock-input" value="{row[3]}" data-product-id="{row[0]}"></td>'
-                    f'<td>{row[4]}</td>'
+                    f'<td><input type="number" class="total-input" value="{row[4]}" data-product-id="{row[0]}"></td>'
                     f'<td><button class="btn-update" data-product-id="{row[0]}" data-product-name="{row[1]}">Enregistrer</button></td>'
                     '</tr>'
                 )
@@ -450,7 +457,7 @@ class Api:
             </div>
             """
 
-        data_prod = Api.lecture_produce('produit.csv')
+        data_prod = api_instance.lecture_produce('produit.csv')
         header = data_prod[0]
 
         circle_price = []
@@ -509,11 +516,11 @@ class Api:
                         const productId = result.id;
                         
                         tr.innerHTML =
-                        '<th scope="row"><a href="javascript:void(0)" class="product-link" data-product="' + nom + '">' + nom +
+                        '<th scope="row"><a href="javascript:void(0)" class="product-link" data-product-id="' + productId + '">' + nom +
                         '</a></th>' +
                         '<td><input type="number" step="0.01" class="price-input" value="' + prix + '" data-product-id="' + productId + '"></td>' +
                         '<td><input type="number" class="stock-input" value="' + quantit + '" data-product-id="' + productId + '"></td>' +
-                        '<td>' + quantit + '</td>' +
+                        '<td><input type="number" class="total-input" value="' + quantit + '" data-product-id="' + productId + '"></td>' +
                         '<td><button class="btn-update" data-product-id="' + productId + '" data-product-name="' + nom + '">Enregistrer</button></td>';
                         
                         tr.setAttribute('data-product-id', productId);
@@ -525,7 +532,6 @@ class Api:
                         const newButton = tr.querySelector('.btn-update');
                         newButton.addEventListener('click', function() {
                             const productId = this.getAttribute('data-product-id');
-                            const productName = this.getAttribute('data-product-name');
                             const newPrice = tr.querySelector('.price-input').value;
                             const newStock = tr.querySelector('.stock-input').value;
                             
@@ -534,8 +540,8 @@ class Api:
                                 return;
                             }
                             
-                            window.pywebview.api.update_product_price(productName, newPrice).then(priceResult => {
-                                window.pywebview.api.add_stock(productName, newStock).then(stockResult => {
+                            window.pywebview.api.update_product_price(productId, newPrice).then(priceResult => {
+                                window.pywebview.api.add_stock(productId, newStock, 'stock').then(stockResult => {
                                     if (priceResult.success && stockResult.success) {
                                         alert('Produit modifié avec succès');
                                         showMainPage();
@@ -567,17 +573,17 @@ class Api:
                 document.querySelectorAll('.btn-update').forEach(button => {
                     button.addEventListener('click', function() {
                         const productId = this.getAttribute('data-product-id');
-                        const productName = this.getAttribute('data-product-name');
                         const newPrice = document.querySelector('.price-input[data-product-id="' + productId + '"]').value;
                         const newStock = document.querySelector('.stock-input[data-product-id="' + productId + '"]').value;
+                        const newTotal = document.querySelector('.total-input[data-product-id="' + productId + '"]').value;
                         
-                        if (!newPrice || !newStock) {
+                        if (!newPrice || !newStock || !newTotal) {
                             alert('Veuillez remplir tous les champs');
                             return;
                         }
                         
-                        window.pywebview.api.update_product_price(productName, newPrice).then(priceResult => {
-                            window.pywebview.api.add_stock(productName, newStock).then(stockResult => {
+                        window.pywebview.api.update_product_price(productId, newPrice).then(priceResult => {
+                            window.pywebview.api.add_stock(productId, newStock, newTotal).then(stockResult => {
                                 if (priceResult.success && stockResult.success) {
                                     alert('Produit modifié avec succès');
                                     showMainPage();
@@ -712,8 +718,8 @@ class Api:
                 document.querySelectorAll('.product-link').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
-                        const productName = this.getAttribute('data-product');
-                        showProductDetail(productName);
+                        const productId = this.getAttribute('data-product-id');
+                        showProductDetail(productId);
                     });
                 });
             }
@@ -727,8 +733,8 @@ class Api:
                 }
             }
 
-            function showProductDetail(productName) {
-                window.pywebview.api.get_product_stats(productName).then(stats => {
+            function showProductDetail(productId) {
+                window.pywebview.api.get_product_stats(productId).then(stats => {
                     if (!stats) {
                         alert('Produit non trouvé');
                         return;
@@ -770,7 +776,7 @@ class Api:
                                 plugins: {
                                     title: {
                                         display: true,
-                                        text: productName + ' - Stock: ' + stats.disponible + '/' + stats.total,
+                                        text: stats.nom + ' - Stock: ' + stats.disponible + '/' + stats.total,
                                         color: '#111827',
                                         font: { size: 14, weight: '500' }
                                     },
@@ -783,11 +789,11 @@ class Api:
                         });
                         
                         // Afficher les graphiques de ventes
-                        window.pywebview.api.get_sales_week(productName).then(weekData => {
+                        window.pywebview.api.get_sales_week(productId).then(weekData => {
                             buildWeekChart(weekData);
                         });
                         
-                        window.pywebview.api.get_sales_month(productName).then(monthData => {
+                        window.pywebview.api.get_sales_month(productId).then(monthData => {
                             buildMonthChart(monthData);
                         });
                     }, 80);

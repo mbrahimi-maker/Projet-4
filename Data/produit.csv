@@ -1,5 +1,5 @@
 id,Nom,Prix,Disponible,total_produit
-1,banane,6.05,70,169
+1,banane,1.0,3000,3600
 2,pomme,1.2,30,54
 3,chausette,5.0,128,267
 4,carton 30x25,10.0,64,83
@@ -14,3 +14,4 @@ id,Nom,Prix,Disponible,total_produit
 13,micro,60.0,20,20
 14,notre dame lego,300.0,10,10
 15,assiettes,9.0,150,150
+16,banane,120.0,10,10

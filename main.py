@@ -181,17 +181,17 @@ class Api:
         product_id = self.add_product(nom=nom, prix=prix, quantit=quantit)
         return {'success': True, 'id': product_id}
 
-    def get_product_stats(self, nom):
-        """Récupère les statistiques d'un produit"""
+    def get_product_stats(self, product_id):
+        """Récupère les statistiques d'un produit par ID"""
         data_prod = self.lecture_produce("produit.csv")
         for row in data_prod[1:]:
-            if len(row) >= 5 and row[1] == nom:
+            if len(row) >= 5 and row[0] == str(product_id):
                 try:
                     disponible = float(row[3])
                     total = float(row[4])
                     indisponible = total - disponible
                     return {
-                        'nom': nom,
+                        'nom': row[1],
                         'prix': row[2],
                         'disponible': disponible,
                         'indisponible': indisponible,
@@ -252,18 +252,20 @@ class Api:
                 data_prod.append(row)
         return data_prod
 
-    def update_product_price(self, product_name, new_price):
-        """Met à jour le prix d'un produit"""
+    def update_product_price(self, product_id, new_price):
+        """Met à jour le prix d'un produit par ID"""
         try:
             new_price = float(new_price)
             if new_price < 0:
                 return {'success': False, 'message': 'Le prix doit être positif'}
             
             rows = []
+            product_name = None
             with open(PRODUIT_CSV, 'r', newline='', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    if len(row) >= 2 and row[1] == product_name:
+                    if len(row) >= 2 and row[0] == str(product_id):
+                        product_name = row[1]
                         row[2] = str(new_price)
                     rows.append(row)
             
@@ -271,59 +273,105 @@ class Api:
                 writer = csv.writer(f)
                 writer.writerows(rows)
             
-            logs(self.id_user, f"Prix du produit {product_name} modifié à {new_price}")
+            logs(self.id_user, f"Prix du produit {product_name} (ID: {product_id}) modifié à {new_price}")
             return {'success': True, 'message': 'Prix mis à jour'}
         except Exception as e:
             logs(self.id_user, f"Erreur lors de la modification du prix: {str(e)}")
             return {'success': False, 'message': str(e)}
 
-    def add_stock(self, product_name, quantity):
-        """Ajoute du stock à un produit"""
+    def type_update(self, product_id, quantity, total):
+        liste = self.lecture_produce('produit.csv')
+        for row in liste[1:]:
+            if len(row) >= 5 and row[0] == str(product_id):
+                current_stock = int(row[3])
+                current_total = int(row[4])
+                quantity = int(quantity)
+                total = int(total)
+                if quantity != current_stock:
+                    return 'stock'
+                elif total != current_total:
+                    return 'total'
+
+    def add_stock(self, product_id, quantity, total):
+        """Ajoute du stock à un produit par ID"""
         try:
-            quantity = int(quantity)
-            if quantity == 0:
-                return {'success': True, 'message': 'Aucune modification'}
+            type = self.type_update(product_id, quantity, total)
+            print(type)
+            if type == 'stock':
+                try:
+                    quantity = int(quantity)
+                    if quantity < 0:
+                        return {'success': True, 'message': 'la quantité doit être positive'}
+                    
+                    rows = []
+                    product_name = None
+                    with open(PRODUIT_CSV, 'r', newline='', encoding='utf-8') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            if len(row) >= 4 and row[0] == str(product_id):
+                                product_name = row[1]
+                                current_stock = int(row[3])
+                                total_stock = int(row[4])
+                                if quantity > total_stock:
+                                    total_stock = quantity
+                                row[3] = str(quantity)
+                                row[4] = str(total_stock)
+                                
+                            rows.append(row)
+                    with open(PRODUIT_CSV, 'w', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerows(rows)
+                except Exception as e:
+                    logs(self.id_user, f"Erreur lors de la modification du stock disponible: {str(e)}")
+                    return {'success': False, 'message': str(e)}
+                
+                logs(self.id_user, f"Stock disponible du produit {product_name} (ID: {product_id}) augmenté de {quantity}")
+                return {'success': True, 'message': 'Stock mis à jour'}
             
-            rows = []
-            with open(PRODUIT_CSV, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if len(row) >= 4 and row[1] == product_name:
-                        current_stock = int(row[3])
-                        total_stock = int(row[4])
-                        add = quantity - current_stock
-                        row[3] = str(quantity)
-                        row[4] = str(total_stock + add)
-                        
-                    rows.append(row)
-            
-            with open(PRODUIT_CSV, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerows(rows)
-            
-            logs(self.id_user, f"Stock du produit {product_name} augmenté de {quantity}")
-            return {'success': True, 'message': 'Stock mis à jour'}
+            elif type == 'total':
+                try:
+                    total = int(total)
+                    if total < 0:
+                        return {'success': False, 'message': 'La quantité totale doit être positive'}
+                    
+                    rows = []
+                    product_name = None
+                    with open(PRODUIT_CSV, 'r', newline='', encoding='utf-8') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            if len(row) >= 5 and row[0] == str(product_id):
+                                product_name = row[1]
+                                current_total = int(row[4])
+                                current_stock = int(row[3])
+                                add = total - current_total
+                                row[4] = str(current_stock + add)
+                                row[3] = str(total)
+                                print(row)
+                                
+                            rows.append(row)
+                    
+                    with open(PRODUIT_CSV, 'w', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerows(rows)
+
+                    logs(self.id_user, f"Stock total du produit {product_name} (ID: {product_id}) modifié à {total}")
+                    return {'success': True, 'message': 'Stock mis à jour'}
+
+                except Exception as e:
+                    logs(self.id_user, f"Erreur lors de la modification du stock total: {str(e)}")
+                    return {'success': False, 'message': str(e)}
+                
+
         except Exception as e:
             logs(self.id_user, f"Erreur lors de la modification du stock: {str(e)}")
             return {'success': False, 'message': str(e)}
+        
 
-    def get_sales_week(self, product_name):
-        """Récupère les ventes par jour pour la dernière semaine"""
+        
+
+    def get_sales_week(self, product_id):
+        """Récupère les ventes par jour pour la dernière semaine par ID"""
         commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
-        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
-        
-        # Trouver l'ID du produit
-        product_id = None
-        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # Skip header
-            for row in reader:
-                if len(row) >= 2 and row[1] == product_name:
-                    product_id = row[0]
-                    break
-        
-        if not product_id:
-            return {}
         
         sales_by_day = {}
         
@@ -340,34 +388,20 @@ class Api:
                 reader = csv.reader(f)
                 next(reader, None)  # Skip header
                 for row in reader:
-                    if len(row) >= 4 and row[0] == product_id:
+                    if len(row) >= 4 and row[0] == str(product_id):
                         try:
                             qty = int(row[2])
                             date_str = row[3][:10]  # Format YYYY-MM-DD
                             if date_str in sales_by_day:
                                 sales_by_day[date_str] += qty
                         except:
-                            pass
+                            return {'success': False, 'message': "Erreur lors de la récupération des ventes"}
         
         return sales_by_day
 
-    def get_sales_month(self, product_name):
-        """Récupère les ventes par jour pour le dernier mois"""
+    def get_sales_month(self, product_id):
+        """Récupère les ventes par jour pour le dernier mois par ID"""
         commande_path = os.path.join(os.path.dirname(__file__), 'Data', 'commande.csv')
-        produit_path = os.path.join(os.path.dirname(__file__), 'Data', 'produit.csv')
-        
-        # Trouver l'ID du produit
-        product_id = None
-        with open(produit_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # Skip header
-            for row in reader:
-                if len(row) >= 2 and row[1] == product_name:
-                    product_id = row[0]
-                    break
-        
-        if not product_id:
-            return {}
         
         sales_by_day = {}
         
@@ -384,7 +418,7 @@ class Api:
                 reader = csv.reader(f)
                 next(reader, None)  # Skip header
                 for row in reader:
-                    if len(row) >= 4 and row[0] == product_id:
+                    if len(row) >= 4 and row[0] == str(product_id):
                         try:
                             qty = int(row[2])
                             date_str = row[3][:10]  # Format YYYY-MM-DD

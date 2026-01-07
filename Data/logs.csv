@@ -72,3 +72,76 @@ timestamp,id_user,action,
 2026-01-07 12:17:16,2,Stock du produit assiettes augmenté de 150
 2026-01-07 12:19:15,2,Prix du produit assiettes modifié à 9.0
 2026-01-07 12:19:15,2,Stock du produit assiettes augmenté de 150
+2026-01-07 12:21:59,2,Prix du produit banane modifié à 6.05
+2026-01-07 12:21:59,2,Stock du produit banane augmenté de 71
+2026-01-07 12:28:44,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 12:28:56,2,Prix du produit banane modifié à 6.05
+2026-01-07 12:28:56,2,Stock du produit banane augmenté de 180
+2026-01-07 12:40:32,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 12:47:33,2,"Ajout du produit: banane, Prix: 120.0, Quantité: 10"
+2026-01-07 12:47:39,2,Prix du produit banane modifié à 2.0
+2026-01-07 12:47:41,2,Prix du produit banane modifié à 2.0
+2026-01-07 12:47:57,2,Prix du produit banane modifié à 2.0
+2026-01-07 12:53:58,2,"Ajout du produit: banane, Prix: 120.0, Quantité: 10"
+2026-01-07 12:54:11,2,Prix du produit banane (ID: 16) modifié à 120.0
+2026-01-07 12:54:11,2,Stock disponible du produit banane (ID: 16) augmenté de 20
+2026-01-07 12:54:27,2,Prix du produit banane (ID: 16) modifié à 120.0
+2026-01-07 12:54:27,2,Stock disponible du produit banane (ID: 16) augmenté de 50
+2026-01-07 12:56:02,2,Prix du produit banane (ID: 16) modifié à 1.0
+2026-01-07 12:56:02,2,Stock disponible du produit banane (ID: 16) augmenté de 50
+2026-01-07 12:56:11,2,Prix du produit banane (ID: 16) modifié à 120.0
+2026-01-07 12:56:11,2,Stock disponible du produit banane (ID: 16) augmenté de 50
+2026-01-07 13:03:27,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 13:03:40,2,Prix du produit banane (ID: 1) modifié à 10.0
+2026-01-07 13:03:40,2,Stock disponible du produit banane (ID: 1) augmenté de 180
+2026-01-07 13:03:49,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:03:49,2,Stock disponible du produit banane (ID: 1) augmenté de 180
+2026-01-07 13:03:54,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:03:54,2,Stock disponible du produit banane (ID: 1) augmenté de 200
+2026-01-07 13:04:02,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:04:02,2,Stock disponible du produit banane (ID: 1) augmenté de 180
+2026-01-07 13:04:07,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:04:07,2,Stock disponible du produit banane (ID: 1) augmenté de 180
+2026-01-07 13:05:20,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:05:20,2,Stock disponible du produit banane (ID: 1) augmenté de 200
+2026-01-07 13:07:03,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:07:03,2,Stock disponible du produit banane (ID: 1) augmenté de 200
+2026-01-07 13:07:26,,Échec de connexion pour l'identifiant: vendeur
+2026-01-07 13:07:38,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:07:38,2,Stock disponible du produit banane (ID: 1) augmenté de 200
+2026-01-07 13:12:00,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:12:00,2,Stock disponible du produit banane (ID: 1) augmenté de 222222
+2026-01-07 13:15:02,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:15:02,2,Stock disponible du produit banane (ID: 1) augmenté de 222222
+2026-01-07 13:15:10,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:15:10,2,Stock disponible du produit banane (ID: 1) augmenté de 400000
+2026-01-07 13:15:50,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:15:50,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:16:03,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:16:03,2,Stock disponible du produit banane (ID: 1) augmenté de 300
+2026-01-07 13:16:21,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:16:21,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:16:42,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:16:42,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:17:36,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:17:36,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:18:49,2,Prix du produit banane (ID: 1) modifié à 20.0
+2026-01-07 13:18:49,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:18:56,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:18:56,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:19:02,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:19:02,2,Stock disponible du produit banane (ID: 1) augmenté de 2001
+2026-01-07 13:19:10,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:19:10,2,Stock disponible du produit banane (ID: 1) augmenté de 2000
+2026-01-07 13:19:22,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:19:22,2,Stock disponible du produit banane (ID: 1) augmenté de 2500
+2026-01-07 13:19:28,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:19:28,2,Stock disponible du produit banane (ID: 1) augmenté de 2500
+2026-01-07 13:19:58,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:19:58,2,Stock disponible du produit banane (ID: 1) augmenté de 2500
+2026-01-07 13:21:05,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:21:05,2,Stock disponible du produit banane (ID: 1) augmenté de 2500
+2026-01-07 13:22:42,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:22:42,2,Stock total du produit banane (ID: 1) modifié à 3600
+2026-01-07 13:23:08,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-07 13:23:08,2,Stock disponible du produit banane (ID: 1) augmenté de 3000
