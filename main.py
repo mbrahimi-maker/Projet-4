@@ -1,8 +1,11 @@
 import webview, csv, os, hashlib, re, binascii
+
 from checkmypass import check as check
-from liste_product import Api as ProdApi 
-from commande import ApiCommande as CommandeApi
 from datetime import datetime, timedelta
+
+import liste_product
+import commande 
+
 import logging
 import warnings
 
@@ -24,6 +27,18 @@ def logs(user_id, message):
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+def lecture_produce(csv_file=None):
+    if csv_file is None:
+        csv_file = 'produit.csv'
+
+    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
+    data_prod = []
+    with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
+        reader = csv.reader(csv_prod)
+        for row in reader:
+            data_prod.append(row)
+    return data_prod
 
 def generate_salt():
     return binascii.hexlify(os.urandom(16)).decode()
@@ -258,7 +273,7 @@ class Api:
         self.id_user = id_user
 
     def get_product_id(self, nom):
-        data_prod = self.lecture_produce(self.csv_file)
+        data_prod = lecture_produce(self.csv_file)
         for row in data_prod[1:]:
             if len(row) >= 2 and row[1] == nom:
                 return row[0]
@@ -279,7 +294,7 @@ class Api:
 
     def get_product_stats(self, product_id):
         """Récupère les statistiques d'un produit par ID"""
-        data_prod = self.lecture_produce("produit.csv")
+        data_prod = lecture_produce("produit.csv")
         for row in data_prod[1:]:
             if len(row) >= 5 and row[0] == str(product_id):
                 try:
@@ -336,17 +351,7 @@ class Api:
             writer.writerows(data_prod)
 
 
-    def lecture_produce(self, csv_file=None):
-        if csv_file is None:
-            csv_file = 'produit.csv'
 
-        csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
-        data_prod = []
-        with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
-            reader = csv.reader(csv_prod)
-            for row in reader:
-                data_prod.append(row)
-        return data_prod
 
     def update_product_price(self, product_id, new_price):
         """Met à jour le prix d'un produit par ID"""
@@ -376,7 +381,7 @@ class Api:
             return {'success': False, 'message': str(e)}
 
     def type_update(self, product_id, quantity, total):
-        liste = self.lecture_produce('produit.csv')
+        liste = lecture_produce('produit.csv')
         for row in liste[1:]:
             if len(row) >= 5 and row[0] == str(product_id):
                 current_stock = int(row[3])
@@ -618,8 +623,7 @@ class Api:
                 if len(user) >= 3 and user[1].lower() == identifiant.lower() and user[2] == saltage_password(hashed_password, user[3]):
                     if user[5] == 'vendeur':
                         self.setUser(user[0])
-                        ProdAp = ProdApi(csv_file='produit.csv')
-                        html = ProdAp.page()
+                        html = liste_product.page()
                         self.window.load_html(html)
                         # Re-expose l'API main pour que les appels JS fonctionnent
                         self.window.expose(self)
@@ -628,12 +632,10 @@ class Api:
 
                     elif user[5] == 'acheteur':
                         self.setUser(user[0])
-                        ProdAp = CommandeApi()
-                        html = ProdAp.page()
+                        html = commande.page()
                         self.window.load_html(html)
                         self.csv_file = 'produit.csv'
                         logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
-                        
                     else:
                         pass   
                     
