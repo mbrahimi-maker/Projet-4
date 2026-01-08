@@ -23,18 +23,6 @@ def logs(user_id, message):
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-def lecture_produce(csv_file=None):
-    if csv_file is None:
-        csv_file = 'produit.csv'
-
-    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
-    data_prod = []
-    with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
-        reader = csv.reader(csv_prod)
-        for row in reader:
-            data_prod.append(row)
-    return data_prod
-
 def generate_salt():
     return binascii.hexlify(os.urandom(16)).decode()
 
@@ -242,7 +230,7 @@ class Api:
         self.id_user = id_user
 
     def get_product_id(self, nom):
-        data_prod = lecture_produce(self.csv_file)
+        data_prod = fonct.lecture_produce(self.csv_file)
         for row in data_prod[1:]:
             if len(row) >= 2 and row[1] == nom:
                 return row[0]
@@ -263,7 +251,7 @@ class Api:
 
     def get_product_stats(self, product_id):
         """Récupère les statistiques d'un produit par ID"""
-        data_prod = lecture_produce("produit.csv")
+        data_prod = fonct.lecture_produce("produit.csv")
         for row in data_prod[1:]:
             if len(row) >= 5 and row[0] == str(product_id):
                 try:
@@ -350,17 +338,19 @@ class Api:
             return {'success': False, 'message': str(e)}
 
     def type_update(self, product_id, quantity, total):
-        liste = lecture_produce('produit.csv')
+        liste = fonct.lecture_produce('produit.csv')
         for row in liste[1:]:
             if len(row) >= 5 and row[0] == str(product_id):
                 current_stock = int(row[3])
                 current_total = int(row[4])
                 quantity = int(quantity)
                 total = int(total)
-                if quantity != current_stock:
+                if quantity != current_stock and total == current_total:
                     return 'stock'
-                elif total != current_total:
+                elif total != current_total and quantity == current_stock:
                     return 'total'
+                elif quantity != current_stock and total != current_total:
+                    return 'both'
             return None
 
     def add_stock(self, product_id, quantity, total):
@@ -430,6 +420,36 @@ class Api:
 
                 except Exception as e:
                     logs(self.id_user, f"Erreur lors de la modification du stock total: {str(e)}")
+                    return {'success': False, 'message': str(e)}
+            elif type == 'both':
+                try:
+                    quantity = int(quantity)
+                    total = int(total)
+                    if quantity < 0 or total < 0:
+                        return {'success': False, 'message': 'Les quantités doivent être positives'}
+                    
+                    rows = []
+                    product_name = None
+                    with open(PRODUIT_CSV, 'r', newline='', encoding='utf-8') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            if len(row) >= 5 and row[0] == str(product_id):
+                                product_name = row[1]
+                                
+                                row[3] = str(quantity)
+                                row[4] = str(total)
+                                
+                            rows.append(row)
+                    
+                    with open(PRODUIT_CSV, 'w', newline='', encoding='utf-8') as f:
+                        writer = csv.writer(f)
+                        writer.writerows(rows)
+
+                    logs(self.id_user, f"Stock du produit {product_name} (ID: {product_id}) modifié à Disponible: {quantity}, Total: {total}")
+                    return {'success': True, 'message': 'Stock mis à jour'}
+
+                except Exception as e:
+                    logs(self.id_user, f"Erreur lors de la modification du stock: {str(e)}")
                     return {'success': False, 'message': str(e)}
                 
 
