@@ -624,7 +624,8 @@ class Api:
                         self.csv_file = 'produit.csv'
                         logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
                     else:
-                        pass   
+                        logs(self.id_user, f"Tentative de connexion avec type d'utilisateur inconnu: {identifiant}, Type: {user[5]}")
+                        return {'success': False, 'message': 'Type d\'utilisateur non reconnu !'}
                     
                     return {'success': True, 'message': 'Connexion réussie !'}
                 

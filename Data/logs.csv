@@ -231,3 +231,7 @@ timestamp,id_user,action,
 2026-01-08 19:29:51,,Échec de connexion pour l'identifiant: vendeur
 2026-01-08 19:29:51,,Échec de connexion pour l'identifiant: vendeur
 2026-01-08 19:30:09,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-08 19:33:36,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-08 19:33:41,0,Utilisateur déconnecté
+2026-01-08 19:33:50,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-08 19:33:56,0,Utilisateur déconnecté
