@@ -1,17 +1,17 @@
 id,Nom,Prix,Disponible,total_produit
-1,banane,20.0,2000,2000
-2,pomme,1.2,30,54
-3,chausette,5.0,128,267
-4,carton 30x25,10.0,64,83
+1,banane,20.0,1994,2000
+2,pomme,1.2,29,54
+3,chausette,5.0,127,267
+4,carton 30x25,10.0,63,83
 5,helldiver2,39.99,48,50
-6,magnus chase,19.99,35,36
+6,magnus chase,19.99,34,36
 7,souris razer,34.99,56,56
 8,switch 2 ,666.66,66,66
 9,poire,1.11,345,345
 10,transistor,20.0,34,34
-11,kinder bueno,3.5,350,350
+11,kinder bueno,3.5,349,350
 12,clé de 12,20.0,63,63
-13,micro,60.0,20,20
-14,notre dame lego,300.0,10,10
+13,micro,60.0,19,20
+14,notre dame lego,300.0,9,10
 15,assiettes,9.0,150,150
 16,banane,120.0,10,10

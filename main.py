@@ -58,7 +58,6 @@ def lire_produits():
             })
     return produits
 
-
 def enregistrer_commande(lignes, id_user=1):
     """Enregistre les commandes avec le format: id_prod,id_user,quantite,date_commande"""
     fichier_existe = os.path.exists(COMMANDE_CSV)
@@ -76,7 +75,6 @@ def enregistrer_commande(lignes, id_user=1):
                 str(ligne["quantite"]),
                 date_commande
             ])
-
 
 def mettre_a_jour_stock(panier):
     """Met à jour le stock disponible après validation de commande"""
@@ -110,7 +108,6 @@ def mettre_a_jour_stock(panier):
         writer.writerows(rows)
     logs(0, "Mise à jour du stock après commande")
 
-
 def lecture_users(csv_file='user.csv'):
     csv_path = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
     users = []
@@ -132,13 +129,9 @@ def lecture_login(csv_file='user.csv'):
                 users.append(row)
     return users
 
-
 def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
-
-
-
 
 def verify_user(identifiant, password, csv_file='user.csv'):
     users = lecture_users(csv_file)
