@@ -1,22 +1,5 @@
-import os
 import json
-import csv
-from datetime import datetime, timedelta
-
-
-def lecture_produce(csv_file=None):
-    if csv_file is None:
-        csv_file = 'produit.csv'
-
-    csv_path_arg = os.path.join(os.path.dirname(__file__), 'Data', csv_file)
-    data_prod = []
-    with open(csv_path_arg, 'r', newline='', encoding='utf-8') as csv_prod:
-        reader = csv.reader(csv_prod)
-        for row in reader:
-            data_prod.append(row)
-    return data_prod
-
-
+import fonct
 
 def page():
 	content = """
@@ -357,7 +340,7 @@ def page():
 		<hr />
 		"""
     
-	data_prod = lecture_produce('produit.csv')
+	data_prod = fonct.lecture_produce('produit.csv')
 	header = data_prod[0]
 
 	if header and len(header) >= 5:

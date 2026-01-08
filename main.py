@@ -1,18 +1,13 @@
-import webview, csv, os, hashlib, re, binascii
+import webview, csv, os, hashlib, re, binascii, fonct, commande, liste_product
 
 from checkmypass import check as check
 from datetime import datetime, timedelta
-
-import liste_product
-import commande 
 
 import logging
 import warnings
 
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 logging.getLogger('pywebview').setLevel(logging.CRITICAL)
-
-produit = None
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "Data")
 PRODUIT_CSV = os.path.join(DATA_DIR, "produit.csv")
@@ -45,32 +40,6 @@ def generate_salt():
 
 def saltage_password(password, salt):
     return hashlib.sha256((salt + password).encode()).hexdigest()
-
-def lire_produits():
-    produits = []
-    with open(PRODUIT_CSV, "r", newline="", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        header = next(reader, None)
-        for row in reader:
-            if len(row) < 5:
-                continue
-            pid = row[0]
-            nom = row[1]
-            try:
-                prix = float(row[2])
-            except Exception:
-                prix = 0.0
-            try:
-                dispo = int(float(row[3]))
-            except Exception:
-                dispo = 0
-            produits.append({
-                "id": pid,
-                "nom": nom,
-                "prix": prix,
-                "disponible": dispo
-            })
-    return produits
 
 def enregistrer_commande(lignes, id_user=1):
     """Enregistre les commandes avec le format: id_prod,id_user,quantite,date_commande"""
