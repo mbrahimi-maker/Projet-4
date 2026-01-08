@@ -213,3 +213,21 @@ timestamp,id_user,action,
 2026-01-08 11:28:14,1,"Utilisateur connecté: api, Type: acheteur"
 2026-01-08 11:38:51,1,"Utilisateur connecté: api, Type: acheteur"
 2026-01-08 11:38:54,0,Utilisateur déconnecté
+2026-01-08 19:18:38,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-08 19:18:48,0,Mise à jour du stock après commande
+2026-01-08 19:18:48,1,Commande validée avec succès
+2026-01-08 19:18:50,0,Utilisateur déconnecté
+2026-01-08 19:19:00,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:21:59,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-08 19:22:11,2,Prix du produit banane (ID: 1) modifié à 1.0
+2026-01-08 19:22:12,2,Stock disponible du produit banane (ID: 1) augmenté de 2001
+2026-01-08 19:23:35,0,Utilisateur déconnecté
+2026-01-08 19:26:24,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-08 19:28:55,1,"Utilisateur connecté: api, Type: acheteur"
+2026-01-08 19:29:47,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:29:50,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:29:50,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:29:51,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:29:51,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:29:51,,Échec de connexion pour l'identifiant: vendeur
+2026-01-08 19:30:09,2,"Utilisateur connecté: vendeur, Type: vendeur"

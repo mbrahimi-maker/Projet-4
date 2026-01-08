@@ -290,7 +290,7 @@ def page():
             <tbody id="tbodyProduits">
     """
 
-    for p in produits:
+    for p in produits[1:]:
         content += f"""
         <tr data-id="{p['id']}" data-nom="{p['nom']}" data-prix="{p['prix']:.2f}" data-dispo="{p['disponible']}">
             <td>{p['nom']}</td>

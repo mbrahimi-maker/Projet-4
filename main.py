@@ -614,8 +614,6 @@ class Api:
                         self.setUser(user[0])
                         html = liste_product.page()
                         self.window.load_html(html)
-                        # Re-expose l'API main pour que les appels JS fonctionnent
-                        self.window.expose(self)
                         self.csv_file = 'produit.csv'
                         logs(self.id_user, f"Utilisateur connecté: {identifiant}, Type: {user[5]}")
 
