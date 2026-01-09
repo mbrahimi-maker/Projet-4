@@ -1,0 +1,2 @@
+identifiant: vendeur
+mdp: @23rty@12342

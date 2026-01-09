@@ -235,3 +235,11 @@ timestamp,id_user,action,
 2026-01-08 19:33:41,0,Utilisateur déconnecté
 2026-01-08 19:33:50,2,"Utilisateur connecté: vendeur, Type: vendeur"
 2026-01-08 19:33:56,0,Utilisateur déconnecté
+2026-01-09 08:42:03,,"Nouvel utilisateur inscrit: oral, Type: None"
+2026-01-09 08:44:49,4,"Utilisateur connecté: oral, Type: acheteur"
+2026-01-09 08:45:10,0,Mise à jour du stock après commande
+2026-01-09 08:45:10,4,Commande validée avec succès
+2026-01-09 08:45:47,0,Utilisateur déconnecté
+2026-01-09 08:46:04,,Échec de connexion pour l'identifiant: vendeur
+2026-01-09 08:46:05,2,"Utilisateur connecté: vendeur, Type: vendeur"
+2026-01-09 08:47:19,0,Utilisateur déconnecté

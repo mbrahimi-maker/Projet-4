@@ -590,7 +590,7 @@ class Api:
             salt = generate_salt()
             hashed_password = saltage_password(hashed_password, salt)
             chec = check()
-            if(chec.main(password)):
+            if(chec.main()):
                 self.add_api(identifiant, hashed_password, email, e='acheteur', f=salt)
                 logs(self.id_user, f"Nouvel utilisateur inscrit: {identifiant}, Type: {user_type}")
                 return {'success': True, 'message': "Inscription réussie ! Vous pouvez maintenant vous connecter."}
